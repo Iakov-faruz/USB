@@ -1,4 +1,4 @@
-# פרומפט 10 — ולידציה של נתונים (Data Validators)
+# פרומפט 11 — ולידציה של נתונים (Data Validators)
 
 ## מטרה
 איך לוודא שנתונים שנכנסים למערכת הם תקינים. יישום ולידציה של JSON ורקורדי TTL עם jq.
@@ -15,7 +15,7 @@
 ---
 
 ```text
-PROMPT 10 — Data Validators
+PROMPT 11 — Data Validators
 
 Implement scripts/lib/validators.sh:
 
@@ -54,12 +54,10 @@ Run tests and report results.
 9. שמור על תאימות לפורמט הקיים שה-SRS מגדיר.
 
 ## בדיקות
-
 - קלט תקין מתקבל.
 - קלט פגום נדחה.
 - שדות לא צפויים מטופלים לפי המדיניות שנקבעה.
 - נתונים פגומים אינם גורמים לשינוי מדיניות.
 
 ## ערך הנדרש
-
 הסבר את ההבדל בין parsing לבין validation.

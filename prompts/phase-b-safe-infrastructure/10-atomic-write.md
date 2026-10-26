@@ -1,4 +1,4 @@
-# פרומפט 09 — כתיבה אטומית (Atomic Write Helper)
+# פרומפט 10 — כתיבה אטומית (Atomic Write Helper)
 
 ## מטרה
 איך לכתוב קובץ כך שאם המחשב קורס באמצע, הקובץ לא נשאר חצי כתוב. יישום כתיבה אטומית עם Python helper.
@@ -15,7 +15,7 @@
 ---
 
 ```text
-PROMPT 09 — Atomic Write Helper
+PROMPT 10 — Atomic Write Helper
 
 Implement scripts/lib/atomic-write.py:
 
@@ -48,7 +48,6 @@ Run tests and report results.
 8. אל תבצע שינויי הרשאות רחבים על ספריות קיימות.
 
 ## בדיקות
-
 - הצלחה מחליפה את הקובץ באופן תקין.
 - כשל לפני ההחלפה משאיר את הקובץ הקודם תקין.
 - הרשאות הקובץ הסופי תקינות.
@@ -56,5 +55,4 @@ Run tests and report results.
 - בדוק התנהגות תחת כשל כתיבה מדומה.
 
 ## איסורים
-
 - אל תוסיף בשלב זה פעולות שמשנות policy של USBGuard.

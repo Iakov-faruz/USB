@@ -1,4 +1,4 @@
-# פרומפט 06 — קריאת הגדרות (Parser)
+# פרומפט 06 — קריאת הגדרות (Config Parser)
 
 ## מטרה
 איך לקרוא קובץ הגדרות בבטחה בלי להריץ קוד מתוכו. יישום פונקציית load_config עם ולידציה נוקשה נגד הזרקת פקודות.
@@ -20,11 +20,13 @@ PROMPT 06 — Config Parser
 Implement scripts/lib/config-reader.sh:
 
 1. Function load_config(file_path) that reads KEY=VALUE pairs.
+
 2. Validation rules (SRS SEC-01, SEC-02):
    - Keys must match ^[A-Z][A-Z0-9_]*$
    - Reject duplicate keys
    - Reject lines containing $(...), backticks, or shell expansion
    - Validate integer ranges for known keys
+
 3. Return non-zero exit code on validation failure with clear error.
 
 Constraints:
@@ -50,12 +52,10 @@ Run tests and report results.
 7. ודא שערכים חסרים או לא תקינים מזוהים מוקדם.
 
 ## בדיקות
-
 - כל קבוע נדרש מוגדר פעם אחת בלבד.
 - כל קוד יציאה מתועד ונבדק.
 - קלט הגדרות לא תקין נכשל בצורה ברורה.
 - אין שינוי מדיניות USBGuard בשלב זה.
 
 ## איסורים
-
 - אין פעולת USBGuard בשלב זה.

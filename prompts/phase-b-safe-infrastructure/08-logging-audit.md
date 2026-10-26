@@ -1,4 +1,4 @@
-# פרומפט 07 — לוגים וביקורת (Logging and Audit)
+# פרומפט 08 — לוגים וביקורת (Logging and Audit)
 
 ## מטרה
 לתעד פעולות ותוצאות באופן אמין, לפי ה-SRS. בנייה של שתי זרמי לוג נפרדים (תפעולי וביקורת) עם פורמט מובנה וסניטיזציה של קלט.
@@ -15,7 +15,7 @@
 ---
 
 ```text
-PROMPT 07 — Logging and Audit
+PROMPT 08 — Logging and Audit
 
 Implement scripts/lib/logger.sh:
 
@@ -54,7 +54,6 @@ Run tests and report results.
 8. אל תאפשר לכשל Audit להסתיר שינוי מדיניות שכבר בוצע.
 
 ## בדיקות
-
 - אירוע תקין נכתב בפורמט הצפוי.
 - קלט זדוני אינו יוצר רשומת Audit מזויפת.
 - כשל כתיבה נבדק.
@@ -62,5 +61,4 @@ Run tests and report results.
 - לא בוצעה פעולת USBGuard.
 
 ## איסורים
-
 - לא בוצעה פעולת USBGuard בשלב זה.

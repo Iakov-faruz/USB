@@ -1,4 +1,4 @@
-# פרומפט 12 — ממשק קריאה בלבד (USBGuard Read-Only Adapter)
+# פרומפט 13 — ממשק קריאה בלבד (USBGuard Read-Only Adapter)
 
 ## מטרה
 איך לקרוא מידע מ-USBGuard בלי לשנות כלום. יישום פונקציות קריאה בלבד עם בדיקות באמצעות פקודות מדומות.
@@ -15,7 +15,7 @@
 ---
 
 ```text
-PROMPT 12 — USBGuard Read-Only Adapter
+PROMPT 13 — USBGuard Read-Only Adapter
 
 Implement read-only functions in scripts/lib/usbguard-policy.sh:
 
@@ -57,7 +57,6 @@ Run tests and report results.
 10. אל תדווח שהתקן חסום או מאושר אם המידע שנקרא אינו מוכיח זאת.
 
 ## בדיקות
-
 - פלט תקין.
 - פלט לא צפוי.
 - פקודה שנכשלה.
@@ -67,9 +66,7 @@ Run tests and report results.
 - בדיקות ללא USBGuard אמיתי.
 
 ## ערך הנדרש
-
 הסבר כיצד שכבת Adapter מונעת פיזור של פקודות מערכת בכל הפרויקט.
 
 ## איסורים
-
 - לא משנה policy אמיתי. בדיקות היחידה משתמשות ב-mock או ב-fake.
