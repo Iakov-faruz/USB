@@ -42,9 +42,16 @@ CRITICAL DISTINCTION:
   explicit SRS requirement and approval.
 
 Error cases:
-- Clock unreliable: stop, do not auto-expire.
+- Clock unreliable: do not change policy; mark recovery_required when safely
+  writable, and report EXIT_INCONSISTENT.
 - Ambiguous match: stop, mark recovery_required.
-- IPC unavailable: stop, retry next run.
+- IPC unavailable before attempting a policy change: leave policy and TTL
+  unchanged, report EXIT_OPERATION, and retry on a later scheduled run.
+- Removal result uncertain: do not retry automatically; report
+  EXIT_INCONSISTENT and require recovery.
+- Removal verified but TTL commit fails: preserve the prior atomic file and
+  evidence; do not repeat removal or restore policy automatically. A later
+  reconciliation must require explicit recovery rather than infer expiration.
 
 Create tests with mock adapter. Run and report results.
 ```
@@ -93,3 +100,4 @@ Create tests with mock adapter. Run and report results.
 - USBGuard לא זמין.
 - כשל עדכון TTL.
 - כשל Audit.
+- תוצאת הסרה לא ודאית אינה גורמת לניסיון הסרה חוזר.
