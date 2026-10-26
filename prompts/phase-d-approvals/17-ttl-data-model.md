@@ -22,13 +22,15 @@ Implement scripts/lib/ttl-model.sh:
 1. Define the TTL record structure (SRS section 13):
    - managed_id: UUID v4
    - rule: canonical rule string
-   - rule_sha256: hash of rule
-   - created_at: Epoch
+   - rule_sha256: SHA-256 of the exact UTF-8 bytes of rule
    - expires_at: Epoch
-   - created_by: actor identity
-   - scope: device-specific or vidpid-wide
-   - status: pending | active | inconsistent | recovery_required
+   - status: pending | active | inconsistent | recovery_required | expired
    - correlation_id: UUID v4
+
+Use exactly the six record fields shown in SRS section 13. Do not add
+created_at, created_by, scope, or any other field. Never persist a USBGuard
+Rule ID. If USBGuard cannot yield one unambiguous canonical rule match, fail
+closed and require recovery.
 
 2. Function create_ttl_record(): create new record with pending status.
 3. Function get_ttl_record(managed_id): retrieve record by ID.
@@ -41,7 +43,7 @@ Constraints:
 
 Create tests/unit/test_ttl_model.sh that tests:
 - Create and retrieve record
-- Status transition pending -> active
+- Valid/invalid status transitions, including terminal expired
 - Invalid status transition rejected
 - Corrupt file handling
 
@@ -69,8 +71,9 @@ Run tests and report results.
 - `active`
 - `inconsistent`
 - `recovery_required`
+- `expired`
 
-אין להוסיף שמות מצבים חדשים בלי צורך ואישור.
+הגדר את `expired` כמצב סופי לאחר הסרה מאומתת של הכלל הזמני. מצב זה אינו אומר שההתקן נחסם; שמור את הרשומה לביקורת. אין להוסיף מצבים נוספים ללא שינוי מאושר של ה-SRS.
 
 ## בדיקות
 

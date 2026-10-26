@@ -20,7 +20,9 @@ PROMPT 23 — CLI Implementation
 Implement CLI entry points:
 
 1. scripts/usb-approve.sh:
-   - Arguments: --device, --vidpid, --type, --ttl, --dry-run, --help
+   - Arguments: --device, --type, --ttl, --dry-run, --help
+   - Allow repeated --device values as specified by the SRS; reject
+     duplicate IDs before any policy change and report every item separately.
    - Validate arguments before executing.
    - Return appropriate exit codes.
    - Read-only commands must not modify state.
@@ -34,15 +36,20 @@ Constraints:
 - Use the service layer (stages.sh), do not duplicate logic.
 - Do not expose sensitive information.
 - Support both human-readable and JSON output.
+- JSON output includes schema_version and separate policy/audit results.
+- Do not add --vidpid or approval by VID:PID alone; --device must identify
+  a device from the current USBGuard state.
 
 Create tests for argument parsing and exit codes.
 Run tests and report results.
 ```
 
 ## משימות מפורטות
-ממש רק את ה-CLI שמוגדר ב-SRS.
+בפרומפט זה ממש את `usb-approve.sh` ואת `usbguard-status.sh` בלבד. ממשקי
+הגיבוי, השחזור, הייבוא והייצוא מטופלים בפרומפטים 26–27; אין להמציא עבורם
+דגלים בפרומפט זה.
 
-1. ממש את הפקודות והדגלים שהוגדרו בלבד (`usb-approve.sh`, `cleanup-expired.sh`, `usbguard-status.sh`).
+1. ממש את הפקודות והדגלים שהוגדרו בלבד.
 2. הוסף `--help` ותיעוד שימוש.
 3. אמת ארגומנטים לפני ביצוע פעולה.
 4. החזר קודי יציאה מדויקים התואמים לשכבת התוצאות.
@@ -61,6 +68,7 @@ Run tests and report results.
 - הרשאות חסרות.
 - JSON תקין.
 - קודי יציאה.
+- `--dry-run` משאיר policy, TTL, Audit וכל State ללא שינוי.
 - fake USBGuard.
 
 ## איסורים

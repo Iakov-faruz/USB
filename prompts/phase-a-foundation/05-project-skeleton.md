@@ -24,19 +24,16 @@ Create the minimal project skeleton:
 
 2. Create README.md with:
    - Project name and purpose
-   - Reference to SRS v4.4 Final Frozen
+   - Reference to USB.md and its exact version/status
    - Note that this is a development skeleton
 
 3. Create conf/approval-manager.conf.example with these keys:
-   BACKUP_KEEP=5
    TEMP_TTL_SECONDS=3600
-   CLEANUP_INTERVAL_MINUTES=5
    IPC_TIMEOUT_SECONDS=5
    MIN_REASONABLE_EPOCH=1577836800
    MAX_CLOCK_JUMP_SECONDS=3600
-   CHECK_DUPLICATES=true
-   NOTIFY_DESKTOP=false
    LOG_LEVEL=INFO
+   BACKUP_KEEP=5
 
 4. Create .gitignore for bash/python project.
 

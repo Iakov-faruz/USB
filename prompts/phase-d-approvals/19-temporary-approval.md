@@ -21,21 +21,27 @@ Implement temporary approval in scripts/lib/stages.sh:
 
 Workflow (SRS section 12.2):
 1. Validate request and device info.
-2. Read current USBGuard state.
-3. Acquire lock.
-4. Check for existing duplicate rule.
-5. Create TTL record with status=pending.
-6. Add temporary rule via adapter.
-7. Verify rule was added and device state changed.
-8. Update TTL record to status=active.
-9. Write audit entry.
+2. Read blocked devices for selection without holding the lock.
+3. Acquire the single global lock, re-fetch USBGuard state, and revalidate
+   every selected device and policy condition.
+4. Check overlap, precedence, and duplicate rule.
+5. Create TTL record with status=pending using atomic write.
+6. Perform the G-01-verified action(s) to approve the connected device and
+   add the temporary policy rule as needed.
+7. Verify the live device state and active rule independently.
+8. Update TTL record to status=active using atomic write.
+9. Write audit entry and report policy/audit outcomes separately.
 10. Release lock.
 
 Error handling:
-- If step 6 fails after step 5: compensate (remove partial rule),
-  mark record as inconsistent.
-- If step 8 fails after step 7: mark record as inconsistent,
-  do NOT claim success.
+- If policy outcome is known and only the new temporary rule exists, remove
+  only that uniquely matched rule and verify; do not assume this reverses
+  approval of a connected device.
+- If policy outcome or TTL write is uncertain, preserve the pending record,
+  mark recovery_required where safely writable, and do not attempt an
+  unverified block/rollback.
+- If policy and TTL are verified but audit fails, report EXIT_AUDIT and
+  preserve the verified policy result.
 
 Constraints:
 - Do NOT use permanent rule for temporary approval.
@@ -52,13 +58,13 @@ Create tests with mock adapter. Run and report results.
 ## זרימת העבודה
 
 1. אמת את הבקשה ואת פרטי ההתקן.
-2. רענן את מצב USBGuard.
-3. רכוש נעילה.
+2. קרא התקנים חסומים לצורך בחירה בלי להחזיק נעילה.
+3. רכוש נעילה גלובלית ואז בצע Re-fetch; אין להשתמש בתוצאת הקריאה שלפני הנעילה לצורך commit.
 4. בדוק אם כבר קיים כלל תואם או אישור פעיל.
 5. מנע יצירת כלל כפול.
-6. שמור מצב ביניים לפי הפרוטוקול שנקבע.
+6. כתוב רשומת `pending` לפי סכמת TTL וכתיבה אטומית.
 7. בצע את פעולת USBGuard שאומתה ב-G-01.
-8. אמת את התוצאה.
+8. אמת בנפרד מצב התקן מחובר וכלל פעיל.
 9. עדכן את TTL באופן אטומי.
 10. כתוב Audit.
 11. אם התהליך נכשל באמצע, סמן מצב מתאים ואל תעמיד פנים שהפעולה הצליחה במלואה.
@@ -77,6 +83,7 @@ Create tests with mock adapter. Run and report results.
 - כשל לפני שינוי policy.
 - כשל אחרי שינוי policy.
 - כשל בכתיבת TTL.
+- אישור התקן הצליח אך הוספת הכלל נכשלה; אין לבצע חסימה אוטומטית.
 - כשל Audit.
 - timeout.
 - שתי בקשות במקביל.

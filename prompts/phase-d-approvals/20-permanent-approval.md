@@ -23,16 +23,19 @@ Workflow:
 1. Validate request and device info.
 2. Read current policy and existing rules.
 3. Check for duplicates.
-4. Choose the correct USBGuard action for permanent approval
-   (based on G-01 findings).
-5. Add permanent rule.
-6. Verify rule exists in active policy AND persistent storage.
+4. Choose the correct USBGuard action(s) for permanent approval based on
+   G-01. Do not repeat a separate append if the verified command already
+   approves the device and persists the rule.
+5. Apply the selected action(s).
+6. Verify the connected device, active policy, and persistent RuleFile/
+   RuleFolder independently.
 7. Write audit entry distinguishing permanent from temporary.
 
 Constraints:
 - Do NOT blindly run allow-device followed by append-rule.
 - Do NOT use Rule ID as permanent identifier.
 - Verify persistence according to target configuration.
+- If a command's combined behavior is not proven by G-01, stop as UNVERIFIED.
 
 Create tests with mock adapter. Run and report results.
 ```

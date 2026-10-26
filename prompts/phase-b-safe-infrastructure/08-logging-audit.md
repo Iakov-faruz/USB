@@ -7,10 +7,10 @@
 `scripts/lib/logger.sh`, `tests/unit/test_logger.sh`
 
 ## קריטריון אימות
-בדוק שקובץ הלוג נוצר בפורמט הנכון.
+בדוק רשומת JSONL תקינה, הרשאות לפי סעיף 10 ב-USB.md, וכשל כתיבה מדווח בלי להסתיר שינוי policy.
 
 ## מה לומדים
-איך לתעד פעולות בצורה שאי אפשר לזייף.
+איך להפריד Audit מלוג תפעולי, למנוע זיוף רשומות ולדווח נכון על כשל Audit.
 
 ---
 
@@ -23,17 +23,20 @@ Implement scripts/lib/logger.sh:
    - log_info/log_error → standard log
    - log_audit → separate audit log
 
-2. Audit format (SRS 17.2):
-   [UTC_TIMESTAMP] [AUDIT] [ACTOR] [ACTION] [RESULT] [CORRELATION_ID] DETAILS
+2. Audit format (SRS SEC-09, section 17): one JSON Lines record with
+   timestamp_utc (RFC 3339 UTC), actor_uid, action, policy_result,
+   correlation_id, and details. Report audit_result separately in the
+   operation result; do not make an audit record self-referential.
 
 3. Actor detection:
-   - If SUDO_UID is set, use it
-   - Otherwise use current UID
-   - If unknown, use "unknown"
+   - Use the invoking user UID from SUDO_UID when valid; otherwise current UID.
+   - If neither is available, report "unknown" explicitly.
 
-4. Sanitize function: remove newlines and control characters from input.
+4. Use a JSON serializer. Escape JSON correctly; reject or sanitize control
+   characters in field values so one input cannot forge additional records.
 
-5. Handle write failures gracefully (do not crash, report error).
+5. Use ownership/modes from SRS section 10. Report write failures explicitly.
+   If policy was already applied, preserve that fact and return EXIT_AUDIT.
 
 Create tests/unit/test_logger.sh that tests:
 - Normal audit entry format
@@ -45,16 +48,16 @@ Run tests and report results.
 
 ## משימות מפורטות
 1. הפרד בין הודעות תפעוליות לבין אירועי Audit.
-2. כלול את השדות הנדרשים ב-SRS: זמן, פעולה, תוצאה, זהות רלוונטית ומידע נוסף שנדרש.
+2. השתמש בשדות JSONL המדויקים שהוגדרו בסעיף 17 של ה-SRS; אין להמציא פורמט נוסף.
 3. אל תשמור סודות, נתוני אימות או מידע רגיש מיותר.
-4. אמת ערכים לפני כתיבה כדי למנוע זיוף רשומות באמצעות newline או תווים מיוחדים.
-5. הגדר הרשאות מתאימות לקובץ ולספריית Audit.
+4. השתמש ב-JSON serializer וודא ש-newline/control characters אינם מסוגלים ליצור רשומה נוספת.
+5. הגדר הרשאות לפי סעיף 10, תוך הבחנה בין mode של ספרייה לבין mode של קובץ.
 6. התנהג נכון כאשר הקובץ אינו ניתן לכתיבה, מלא או אינו זמין.
 7. שמור על ההבחנה בין `POLICY_APPLIED` לבין `POLICY_APPLIED_AUDIT_FAILED`.
 8. אל תאפשר לכשל Audit להסתיר שינוי מדיניות שכבר בוצע.
 
 ## בדיקות
-- אירוע תקין נכתב בפורמט הצפוי.
+- אירוע תקין נכתב כרשומת JSONL עם כל השדות הנדרשים; תוצאת ה-Audit מדווחת בנפרד.
 - קלט זדוני אינו יוצר רשומת Audit מזויפת.
 - כשל כתיבה נבדק.
 - התוצאה המוחזרת תואמת למצב האמיתי.

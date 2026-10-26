@@ -57,6 +57,9 @@ Test in lab environment only. Report results.
 6. אתחל קובץ TTL אם חסר.
 7. התקן יחידות systemd ו-sudoers.
 8. הרץ validate_all.sh בסוף.
+9. הרץ פעולות privileged כ-root רק כנדרש ב-SRS; `usbadmins` אינם מקבלים גישת IPC ישירה.
+10. הגבל sudoers ל-entry points מאושרים. בדוק ארגומנטים ב-entry point ואל תשתמש ב-wildcards המאפשרים shell או עקיפת validation.
+11. גבה קבצים קיימים לפני החלפה; התקנה חוזרת אינה מוחקת State, Audit או גיבויים.
 
 ## סקריפט הסרה (deploy-uninstall.sh)
 
@@ -68,6 +71,7 @@ Test in lab environment only. Report results.
 
 1. אפשר למשתמשי usbadmins להריץ פקודות ספציפיות בלבד.
 2. אל תאפשר shell או פקודות כלליות.
+3. אל תאפשר פרמטרים חופשיים/תווים כלליים שמאפשרים לעקוף את ולידציית ה-entry point.
 
 ## איסורים
 

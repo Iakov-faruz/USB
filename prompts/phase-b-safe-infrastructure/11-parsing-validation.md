@@ -28,7 +28,8 @@ Implement scripts/lib/validators.sh:
 2. Function validate_ttl_record(record_json):
    - managed_id must be UUID v4 format
    - expires_at must be positive integer
-   - status must be one of: pending, active, inconsistent, recovery_required
+   - status must be one of: pending, active, inconsistent, recovery_required,
+     expired (expired is terminal and is valid only after verified removal)
    - rule must be non-empty string
 
 3. Return specific error messages for each validation failure.

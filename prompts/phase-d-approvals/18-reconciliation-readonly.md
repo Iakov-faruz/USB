@@ -25,11 +25,13 @@ Implement read-only reconciliation in scripts/lib/reconcile.sh:
    - Active temporary rules without TTL record (orphaned rules)
    - Duplicates (multiple rules matching same record)
    - Ambiguous matches (cannot determine which rule matches)
+   - Permanent-rule overlap
+   - Untrusted clock or missing synchronization evidence
 
 3. Return structured report:
    - consistent: everything matches
    - inconsistent: problems found (list them)
-   - unknown: cannot determine (e.g., IPC unavailable)
+   - unknown: cannot determine (e.g., IPC unavailable or clock untrusted)
 
 Constraints:
 - Do NOT add or remove rules.
@@ -66,6 +68,7 @@ Run tests and report results.
 - אל תחסום התקנים.
 - אל תציג התקן כחסום רק משום שאין כלל זמני.
 - אל תסיק שהמצב תקין כאשר חסרים נתונים.
+- שעון לא מהימן או מידע סנכרון חסר אינם מאפשרים לקבוע שהמצב תקין; דווח unknown והמלץ recovery לפי ה-SRS.
 - הפק תוצאה מובנית שמבדילה בין תקין, לא עקבי ולא ניתן לקביעה.
 - מצב עמום חייב להוביל להמלצה או למצב התאוששות, לא לתיקון אוטומטי.
 

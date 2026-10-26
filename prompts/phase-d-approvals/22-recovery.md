@@ -22,11 +22,12 @@ Implement scripts/lib/recovery.sh:
 Handle these inconsistent states:
 1. Policy changed but TTL not updated.
 2. TTL updated but policy not changed.
-3. TTL file corrupt.
+3. TTL file corrupt or schema version unsupported.
 4. Clock unreliable.
 5. USBGuard unavailable.
 6. Ambiguous rule match.
 7. Audit failed after successful policy change.
+8. Expired TTL rule removed but connected device remains allowed.
 
 For each state:
 - Define detection criteria.
@@ -56,6 +57,7 @@ Create tests for each state. Run and report results.
 - התאמה לכלל אינה חד-משמעית.
 - Audit נכשל לאחר שינוי מוצלח.
 - התקן עדיין מאושר אחרי הסרת כלל זמני.
+- שמור רשומת `expired` רק לאחר הסרה מאומתת; היא אינה מעידה שההתקן נחסם.
 
 ## דרישות
 

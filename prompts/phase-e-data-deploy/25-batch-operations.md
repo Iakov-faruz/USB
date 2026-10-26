@@ -27,6 +27,9 @@ Implement batch processing:
 6. Prevent duplicate processing of same item.
 7. Handle device disappearance mid-batch.
 8. Use appropriate exit code for partial success (EXIT_PARTIAL=13).
+9. If the user cancels after any policy change, return EXIT_PARTIAL and
+   report each processed item; return EXIT_CANCELLED only if no policy
+   change occurred.
 
 Constraints:
 - Do NOT rollback all items because one failed (unless SRS requires).

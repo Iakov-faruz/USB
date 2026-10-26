@@ -20,9 +20,9 @@ PROMPT 14 — Lab Environment Preparation
 READ-ONLY PLANNING. Do not modify any system.
 
 1. Define what constitutes a "lab environment" for this project:
-   - Separate VM or container
-   - No production USB devices connected
-   - USBGuard installed but with test-only rules
+   - Dedicated isolated VM with USB passthrough (not a shared development host)
+   - No production or human-critical USB devices connected
+   - USBGuard installed with test-only policy and a verified recovery path
 
 2. Create a checklist document (docs/lab-checklist.md) with:
    - How to verify you are in lab environment
@@ -37,7 +37,7 @@ Return the checklist and stop.
 
 ## משימות מפורטות
 1. הגדר מה נחשב ל"סביבת מעבדה" בפרויקט זה:
-   - VM נפרד או מכולה (container)
+   - VM ייעודי ומבודד עם USB passthrough; container בלבד אינו סביבת G-01 מאושרת
    - אין התקני USB יצרניים מחוברים
    - USBGuard מותקן עם כללי בדיקה בלבד
 
@@ -46,6 +46,7 @@ Return the checklist and stop.
    - אילו פקודות בטוחות להרצה
    - אילו פקודות אסורות מחוץ למעבדה
    - כיצד להשתקם אם משתבש משהו
+   - תנאים להפסקה וסימון `UNVERIFIED` כשאין ראיות או נתיב התאוששות
 
 3. אל תריץ שום פקודת USBGuard בשלב זה.
 

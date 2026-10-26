@@ -4,7 +4,7 @@
 למנוע מצב שבו פעולה נכשלה אך המערכת מדווחת הצלחה. הגדרת מודל תוצאה עם הבחנה ברורה בין סוגי כישלון שונים.
 
 ## קבצים צפויים
-אין קבצי קוד חדשים. רק מסמך הגדרת מודל השגיאות.
+`scripts/lib/result.sh`, `tests/unit/test_result.sh` בלבד.
 
 ## קריטריון אימות
 הסוכן צריך להחזיר הגדרת מודל תוצאה עם כל מצבי הכשל ורשימת קודי היציאה.
@@ -17,7 +17,7 @@
 ```text
 PROMPT 07 — Error Result Model
 
-Implement an error/result model layer:
+Implement the shared error/result model in scripts/lib/result.sh:
 
 1. Define result states:
    - Operation succeeded
@@ -29,19 +29,20 @@ Implement an error/result model layer:
 
 2. Map each state to exact exit codes per SRS section 21:
    - EXIT_OK = 0
+   - EXIT_OPERATION = 1 (precondition/operational failure before policy change)
    - EXIT_VALIDATION = 7
-   - EXIT_INCONSISTENT = 9
+   - EXIT_INCONSISTENT = 9 (including unknown policy outcome/recovery required)
    - EXIT_PARTIAL = 13
    - EXIT_AUDIT = 14
    - EXIT_CANCELLED = 130
 
 3. Define return structure for CLI and library functions.
 
-Do not implement business logic. Return the model definition and stop.
+Do not implement business logic. Add focused unit tests for each result/code mapping.
 ```
 
 ## משימה
-ממש שכבת שגיאות ותוצאות בלבד. הגדר מודל תוצאה המאפשר להבחין בין:
+ממש שכבת שגיאות ותוצאות מרכזית בלבד. הגדר מודל תוצאה המאפשר להבחין בין:
 
 - פעולה שהצליחה.
 - פעולה שנכשלה לפני שינוי מדיניות.
@@ -50,7 +51,7 @@ Do not implement business logic. Return the model definition and stop.
 - מצב שבו אי אפשר לדעת בוודאות מה השתנה.
 - מצב המחייב התאוששות.
 
-אם ה-SRS מגדיר שמות וקודי יציאה מסוימים — שמור עליהם.
+השתמש בדיוק במיפוי קודי היציאה בסעיף 21 של USB.md. בכשל batch, שמור תוצאה לכל פריט והחל את סדר הקדימות שהוגדר שם. כשל תפעולי לפני שינוי policy הוא `EXIT_OPERATION`; מצב לא עקבי או לא ידוע הוא `EXIT_INCONSISTENT`.
 
 ## איסורים
 - אל תשתמש בתוצאה כללית כגון `false` כאשר יש צורך להבחין בין מצבים בעלי משמעות אבטחתית שונה.
@@ -60,6 +61,7 @@ Do not implement business logic. Return the model definition and stop.
 - לכל מצב יש תוצאה צפויה.
 - תוצאות אינן מתפרשות בטעות כהצלחה.
 - כשל Audit לאחר שינוי מוצלח אינו מדווח כאילו המדיניות לא השתנתה.
+- `EXIT_CANCELLED` מוחזר רק כאשר לא בוצע שינוי policy.
 
 ## ערך החזרה
 - הסבר באמצעות דוגמאות קצרות כיצד רכיבים עתידיים ישתמשו במודל התוצאה.

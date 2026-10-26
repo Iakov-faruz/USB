@@ -23,8 +23,9 @@ Implement scripts/lib/config-reader.sh:
 
 2. Validation rules (SRS SEC-01, SEC-02):
    - Keys must match ^[A-Z][A-Z0-9_]*$
+   - Accept only keys defined in SRS section 11
    - Reject duplicate keys
-   - Reject lines containing $(...), backticks, or shell expansion
+   - Reject shell expansion, command substitution, backticks, control characters, and malformed assignments
    - Validate integer ranges for known keys
 
 3. Return non-zero exit code on validation failure with clear error.
@@ -34,26 +35,24 @@ Constraints:
 - Use grep/awk for parsing.
 
 Create tests/unit/test_config_reader.sh that tests:
-- Valid config file
+- Valid config file and defaults
 - Config with duplicate key (should fail)
 - Config with $(rm -rf /) injection (should fail)
 - Config with invalid key name (should fail)
+- Unknown key and out-of-range value (should fail)
 
 Run tests and report results.
 ```
 
 ## משימות מפורטות
-1. רכז את נתיבי הקבצים, הספריות, קובצי המצב, ה-Audit, הגיבויים והנעילה.
-2. רכז ערכי ברירת מחדל וקבועים נדרשים.
-3. הגדר קודי יציאה באופן מרכזי, לרבות `EXIT_AUDIT=14` כהגדרתו ב-SRS (סעיף 21 ב-USB.md).
-4. שמור על הבחנה בין הצלחת פעולה, כישלון מדיניות, כישלון Audit ומצב לא עקבי.
-5. אל תפזר כתובות IP, נתיבים או allowlists קשיחים ללא דרישה מפורשת.
-6. אל תאפשר לקלט משתמש לשנות נתיבי מערכת רגישים ללא אימות.
-7. ודא שערכים חסרים או לא תקינים מזוהים מוקדם.
+1. ממש רק את טעינת התצורה ואת הוולידציה שלה; נתיבים וקודי יציאה מוגדרים במקומם המרכזי ולא בפרסר.
+2. אפשר רק את מפתחות סעיף 11 ב-USB.md, עם ברירות מחדל וטווחים זהים.
+3. קרא מפתחות וערכים כנתונים בלבד; לעולם אל תשתמש ב-`source`, `eval` או shell.
+4. דחה כפילויות, מפתחות לא מוכרים, שורות פגומות, הרחבות וערכים מחוץ לטווח.
+5. ערכים חסרים יקבלו ברירות מחדל רק לפי ה-SRS; שגיאה לא תומר לברירת מחדל שקטה.
 
 ## בדיקות
-- כל קבוע נדרש מוגדר פעם אחת בלבד.
-- כל קוד יציאה מתועד ונבדק.
+- כל מפתח תצורה מותר מוגדר ב-SRS ובדוגמת התצורה.
 - קלט הגדרות לא תקין נכשל בצורה ברורה.
 - אין שינוי מדיניות USBGuard בשלב זה.
 

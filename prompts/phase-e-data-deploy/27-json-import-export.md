@@ -29,6 +29,8 @@ Implement import/export:
    - Reject unsupported schema versions.
    - Reject missing required fields.
    - Show diff before applying.
+   - Parse into staging and validate all paths, schema and values before
+     requesting explicit authorization for any policy change.
    - Do NOT execute system commands from imported data.
    - Separate data import from policy change.
 
@@ -45,7 +47,7 @@ Run tests and report results.
 
 1. השתמש ב-schema מפורש.
 2. אמת את כל הנתונים לפני החלתם.
-3. הגדר התנהגות לגרסת פורמט לא נתמכת.
+3. כל קובץ ייבוא חייב לכלול `schema_version`; דחה גרסאות לא נתמכות.
 4. דחה ערכים אסורים, שדות חובה חסרים ונתונים סותרים.
 5. אל תפעיל פקודות מערכת מתוך קובץ מיובא.
 6. הפרד בין ייבוא נתונים לבין ביצוע שינוי מדיניות.
@@ -62,6 +64,7 @@ Run tests and report results.
 - ערכים לא תקינים.
 - נתונים כפולים.
 - ייבוא שלא משנה מדיניות לפני אישור הפעולה.
+- ניסיון לשנות `00-system.rules` או לכתוב מחוץ ל-staging נדחה.
 - round-trip של נתונים תקינים.
 
 ## איסורים

@@ -20,8 +20,8 @@ PROMPT 26 — Backup and Restore
 Implement backup and restore:
 
 1. backup-rules.sh:
-   - Backup only defined files (policy, TTL, config).
-   - Create manifest with hashes.
+   - Backup only the SRS allowlisted files; never include 00-system.rules.
+   - Create a versioned manifest with exact file list, sizes, modes, and SHA-256.
    - Rotate backups according to BACKUP_KEEP.
    - Preserve permissions.
 
@@ -29,6 +29,9 @@ Implement backup and restore:
    - List available backups.
    - Verify manifest before restore.
    - Show what will change before applying.
+   - Extract and validate in a staging directory; back up destination first.
+   - Atomically replace validated files and restore prior state on failure;
+     otherwise mark recovery_required and preserve evidence.
    - Do NOT restore Rule IDs as valid after reboot.
    - If clock unreliable, do not auto-expire after restore.
 
@@ -65,6 +68,7 @@ Run tests and report results.
 - כשל באמצע השחזור.
 - rollback.
 - Audit.
+- path traversal, symlink, unexpected archive member, and manifest mismatch.
 
 ## איסורים
 

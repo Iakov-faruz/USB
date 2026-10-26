@@ -37,7 +37,9 @@ CRITICAL DISTINCTION:
 - Removing a temporary rule does NOT prove the device is blocked.
 - After removal, check device state separately.
 - If another rule still allows the device, report that explicitly.
-- Do NOT run block-device automatically without justification.
+- Do NOT run block-device as part of TTL expiration. The SRS does not authorize
+  that action in the Reaper; any future block workflow requires a separate
+  explicit SRS requirement and approval.
 
 Error cases:
 - Clock unreliable: stop, do not auto-expire.
@@ -72,7 +74,7 @@ Create tests with mock adapter. Run and report results.
 לאחר ההסרה:
 - בדוק את מצב ההתקן.
 - בדוק אם כלל קבוע אחר עדיין מאפשר אותו.
-- אל תפעיל `block-device` אוטומטית ללא הצדקה, בדיקת מצב והרשאה בהתאם ל-SRS.
+- אל תפעיל `block-device` כחלק מתהליך תפוגה: ה-SRS אינו מתיר פעולה זו ב-Reaper.
 - אם ההתקן עדיין מאושר, דווח זאת במפורש.
 - אם אי אפשר לקבוע את מצבו, דווח `unknown` או מצב שקול שהוגדר בפרויקט.
 - אל תסמן תפוגה כ"התקן נחסם" אם הדבר לא אומת.
@@ -86,6 +88,7 @@ Create tests with mock adapter. Run and report results.
 - Rule ID שהשתנה.
 - כלל קבוע חופף.
 - התקן שנשאר מאושר.
+- מעבר לרשומת `expired` רק לאחר אימות הסרת הכלל, תוך שמירת הרשומה.
 - שעון לא מהימן.
 - USBGuard לא זמין.
 - כשל עדכון TTL.

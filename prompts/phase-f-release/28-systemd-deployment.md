@@ -21,6 +21,8 @@ Create systemd unit files:
 
 1. usbguard-approval-ttl.service:
    - Type=oneshot
+   - User=root, Group=root (required for the privileged USBGuard policy
+     operations and protected state paths defined by the SRS)
    - ExecStart=/usr/libexec/usbguard-approval-manager/cleanup-expired.sh
    - After=usbguard.service
    - Hardening: ProtectSystem=strict, PrivateTmp=true, NoNewPrivileges=true
@@ -42,9 +44,11 @@ Report results.
 ## משימות מפורטות
 ממש את קובצי הפריסה ואת יחידות systemd לפי ה-SRS.
 
-1. השתמש במשתמש ובקבוצות שהוגדרו בתכנון (`usbadmins`).
+1. שירות ה-Reaper רץ כ-`root:root` לפי סעיפים 18–19 ב-USB.md. קבוצת
+   `usbadmins` משמשת לגישת קריאה ללוגים ולהפעלת entry points מאושרים דרך
+   sudoers; היא אינה מקבלת גישת IPC ישירה או הרשאות לשירות עצמו.
 2. הגדר בעלות והרשאות מדויקות לקבצים ולספריות (על פי סעיף 10 ב-USB.md).
-3. אל תפעיל את השירות כ-root אם אין בכך צורך מפורש.
+3. אל תפעיל את השירות בהרשאה רחבה יותר מהנדרש; עבור Reaper נדרשת הרשאת root לפי ה-SRS. צמצם capabilities והקשח את היחידה בלי לשבור IPC.
 4. הגדר `ReadWritePaths` לכל הנתיבים שהשירות חייב לכתוב אליהם, לרבות נתיב הנעילה וקובצי המצב, לפי התכנון המאושר.
 5. השתמש בהגבלות systemd המתאימות ליכולות השירות.
 6. אל תחסום גישה הנדרשת ל-USBGuard IPC.
@@ -64,4 +68,6 @@ Report results.
 - restart.
 - שימור נתונים.
 - rollback.
-- הפעלה תחת המשתמש המוגדר.
+- אימות שהשירות רץ תחת `root:root`.
+- הפעלה תחת `root:root` כפי שהוגדר ב-SRS.
+- `sudoers` אינו מאפשר shell, פקודות כלליות או עקיפת validation דרך ארגומנטים.

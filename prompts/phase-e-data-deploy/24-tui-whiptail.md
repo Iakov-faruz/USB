@@ -23,7 +23,8 @@ Implement TUI using whiptail:
 2. Ask for approval type (permanent/temporary).
 3. Ask for TTL if temporary.
 4. Show summary before executing.
-5. Re-read device state before commit (SRS 4.0).
+5. Re-read device state after acquiring the lock and before commit (SRS
+   section 12.1).
 6. Display result based on actual outcome.
 
 Constraints:

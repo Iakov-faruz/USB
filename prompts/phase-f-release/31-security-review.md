@@ -19,7 +19,8 @@ PROMPT 31 — Security Review
 
 REVIEW ONLY. Do not modify files.
 
-Review the entire implementation for security issues:
+Review the entire implementation for security issues against the approved
+SRS in USB.md. If v4.5 is still a draft, identify draft deltas separately:
 
 1. Input validation and injection risks.
 2. File permissions and symlink attacks.
@@ -61,6 +62,7 @@ Do NOT fix anything. Return findings list and stop.
 13. הרשאות systemd ו-IPC.
 14. פעולות batch חלקיות.
 15. האם הודעות הצלחה תואמות לתוצאה בפועל.
+16. האם הרשאות ספרייה וקובץ נבדקות בנפרד, עם בעלות וקבוצה לפי SRS.
 
 ## פורמט החזרה לכל ממצא
 

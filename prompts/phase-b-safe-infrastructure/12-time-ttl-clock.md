@@ -23,35 +23,41 @@ Implement scripts/lib/time-guards.sh:
 
 2. Function is_clock_reasonable():
    - Check current time > MIN_REASONABLE_EPOCH
-   - Check current time < some sane maximum (e.g. year 2100)
-   - Return 0 if reasonable, 1 if suspicious
+   - Do not invent a calendar upper bound.
+   - A plausible Epoch is not proof of synchronization.
 
 3. Function detect_clock_jump(last_known_time):
-   - Compare current time with last known
-   - If difference > MAX_CLOCK_JUMP_SECONDS, return warning
+   - Compare with the last positively trusted time, if one exists.
+   - Treat a missing trusted baseline, missing synchronization evidence,
+     or a jump beyond the SRS threshold as untrusted.
    - Do NOT change system clock
 
 4. Note: TTL is calendar-based (Epoch). If clock is unreliable after
    reboot, do NOT auto-restore permissions (SRS time model).
 
+5. Implement the trust check using the time-sync source and evidence
+   verified by G-01 for the target. Missing/unsupported status fails closed.
+
 Create tests/unit/test_time_guards.sh that tests:
-- Current time is reasonable
-- Simulated past timestamp (before 2020) is flagged
-- Clock jump detection works
+- Current Epoch above MIN_REASONABLE_EPOCH
+- Simulated missing/negative values rejected
+- Synchronized and unsynchronized provider results
+- Jump over and under MAX_CLOCK_JUMP_SECONDS
+- Missing last trusted baseline
 
 Run tests and report results.
 ```
 
 ## משימות מפורטות
 1. השתמש ב-Epoch לציון זמני תפוגה, לפי ה-SRS.
-2. הפרד בין זמן נוכחי, זמן יצירה וזמן תפוגה.
+2. השתמש בזמן הנוכחי וב-`expires_at` לפי הסכמה; אל תוסיף שדות TTL שאינם מוגדרים ב-SRS.
 3. ודא שערכים שליליים, חסרים או לא תקינים נדחים.
 4. בדוק overflow וטווחים בלתי סבירים.
 5. אל תסיק שהשעון אמין רק משום שהוא מחזיר timestamp.
-6. יישם רק קריטריוני clock trust שאושרו ב-SRS וב-G-01.
+6. יישם רק קריטריוני clock trust שאושרו ב-SRS וב-G-01; תעד את המקור והראיה.
 7. אם אין דרך להוכיח שהשעון אמין לאחר reboot, החזר מצב מפורש שמונע תפוגה או הארכה אוטומטית מסוכנת.
 8. אל תשנה את שעון המערכת כחלק מהבדיקה.
-9. אל תמציא סף סטייה או כלל זמן חדש בלי לתעד את ההחלטה ולקבל אישור.
+9. אל תוסיף גבול קלנדרי עליון או סף סטייה חדש. `MAX_CLOCK_JUMP_SECONDS` הוא סף חריגה ואינו הוכחת סנכרון.
 10. אל תוסיף עדיין Reaper שמבצע שינויי policy.
 
 ## בדיקות
