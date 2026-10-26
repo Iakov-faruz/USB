@@ -1,9 +1,46 @@
-# פרומפט 25 — systemd, הרשאות והתקנה
+# פרומפט 27 — יחידות מערכת (systemd Units)
 
 ## מטרה
-ממש את קובצי הפריסה ואת יחידות systemd לפי ה-SRS.
+איך להגדיר שירות שרץ אוטומטית במערכת. יצירת קובצי יחידת systemd עבור שירות הניקוי וטיימר מחזורי.
 
-## דרישות
+## קבצים צפויים
+`systemd/usbguard-approval-ttl.service`, `systemd/usbguard-approval-ttl.timer`
+
+## קריטריון אימות
+הרץ את פקודת האימות וודא שאין שגיאות תחביר.
+
+## מה לומדים
+איך להגדיר שירות שרץ אוטומטית במערכת.
+
+---
+
+```text
+PROMPT 27 — systemd Units
+
+Create systemd unit files:
+
+1. usbguard-approval-ttl.service:
+   - Type=oneshot
+   - ExecStart=/usr/libexec/usbguard-approval-manager/cleanup-expired.sh
+   - After=usbguard.service
+   - Hardening: ProtectSystem=strict, PrivateTmp=true, NoNewPrivileges=true
+   - ReadWritePaths: state dir, backup dir, log dir, lock path
+
+2. usbguard-approval-ttl.timer:
+   - OnBootSec=1min
+   - OnUnitActiveSec=5min
+
+Constraints:
+- Do NOT add CAP_DAC_OVERRIDE by default.
+- Include lock path in ReadWritePaths.
+- Use exact paths from SRS.
+
+Verify syntax with: systemd-analyze verify <unit-file>
+Report results.
+```
+
+## משימות מפורטות
+ממש את קובצי הפריסה ואת יחידות systemd לפי ה-SRS.
 
 1. השתמש במשתמש ובקבוצות שהוגדרו בתכנון (`usbadmins`).
 2. הגדר בעלות והרשאות מדויקות לקבצים ולספריות (על פי סעיף 10 ב-USB.md).

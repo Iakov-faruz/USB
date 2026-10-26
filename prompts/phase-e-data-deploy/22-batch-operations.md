@@ -1,9 +1,42 @@
-# פרומפט 22 — פעולות Batch
+# פרומפט 24 — פעולות מרובות (Batch Operations)
 
 ## מטרה
-לאפשר פעולות על מספר התקנים בלי להסתיר הצלחות חלקיות.
+איך לטפל במספר פריטים בלי להסתיר כשלים חלקיים. יישום עיבוד באצ'ים עם דיווח על הצלחה חלקית.
 
-## דרישות
+## קבצים צפויים
+`scripts/lib/stages.sh` (הוספת חלק), `tests/unit/test_batch.sh`
+
+## קריטריון אימות
+הרץ את הבדיקות וודא שהצלחה חלקית מדווחת נכון.
+
+## מה לומדים
+איך לטפל במספר פריטים בלי להסתיר כשלים חלקיים.
+
+---
+
+```text
+PROMPT 24 — Batch Operations
+
+Implement batch processing:
+
+1. Validate each item individually before processing.
+2. Process each item independently.
+3. Record result for each item.
+4. Distinguish: full success, full failure, partial success.
+5. Do NOT report overall success if any item failed.
+6. Prevent duplicate processing of same item.
+7. Handle device disappearance mid-batch.
+8. Use appropriate exit code for partial success (EXIT_PARTIAL=13).
+
+Constraints:
+- Do NOT rollback all items because one failed (unless SRS requires).
+- Use locking and audit as defined.
+
+Create tests for all scenarios. Run and report results.
+```
+
+## משימות מפורטות
+לאפשר פעולות על מספר התקנים בלי להסתיר הצלחות חלקיות.
 
 1. אמת כל פריט בנפרד לפני הפעולה המתאימה.
 2. תעד תוצאה לכל פריט.

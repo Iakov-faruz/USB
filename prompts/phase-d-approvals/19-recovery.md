@@ -1,6 +1,49 @@
-# פרומפט 19 — Recovery למצבים לא עקביים
+# פרומפט 21 — התאוששות ממצבים לא עקביים (Recovery Mechanism)
 
 ## מטרה
+איך לטפל במצבים שבהם "משהו השתבש" בלי לעשות נזק נוסף. יישום מנגנון התאוששות עם זיהוי מצבים וקבלת החלטות.
+
+## קבצים צפויים
+`scripts/lib/recovery.sh`, `tests/unit/test_recovery.sh`
+
+## קריטריון אימות
+הרץ את הבדיקות וודא שכל המצבים נבדקים.
+
+## מה לומדים
+איך לטפל במצבים שבהם "משהו השתבש" בלי לעשות נזק נוסף.
+
+---
+
+```text
+PROMPT 21 — Recovery Mechanism
+
+Implement scripts/lib/recovery.sh:
+
+Handle these inconsistent states:
+1. Policy changed but TTL not updated.
+2. TTL updated but policy not changed.
+3. TTL file corrupt.
+4. Clock unreliable.
+5. USBGuard unavailable.
+6. Ambiguous rule match.
+7. Audit failed after successful policy change.
+
+For each state:
+- Define detection criteria.
+- Define whether automatic repair is safe.
+- Define when human intervention is required.
+- Preserve evidence for investigation.
+
+Constraints:
+- Do NOT modify policy when state is ambiguous.
+- Do NOT delete records to "fix" inconsistency.
+- Maintain idempotency: running recovery twice should not cause
+  additional changes.
+
+Create tests for each state. Run and report results.
+```
+
+## משימות מפורטות
 ממש מנגנון התאוששות לפי ה-SRS.
 
 ## מצבים שיש לטפל בהם לפחות בהם

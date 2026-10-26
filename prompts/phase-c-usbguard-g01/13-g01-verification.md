@@ -1,10 +1,45 @@
-# פרומפט 13 — G-01: אימות התנהגות USBGuard במעבדה
+# פרומפט 14 — בדיקות התנהגות G-01 חלק א` (Gate G-01 Tests Part 1)
 
-## מטרה
-שער אימות חובה. אל תדלג עליו ואל תסמן אותו PASS ללא ראיות. ירוץ בסביבת מעבדה מבודדת ומאושרת בלבד.
+## מטולה
+שער אימות חובה חלק א`. בדיקות התנהגות בסיסיות של USBGuard בסביבת מעבדה בלבד. לא לדלג עליו וללא סימון PASS ללא ראיות.
 
-## לפני בדיקות שמשנות policy
+## קבצים צפויים
+`docs/g01-report-part1.md` (דוח בדיקות)
 
+## קריטריון אימות
+בדוק שהדוח כולל את כל 5 הבדיקות עם פקודה, פלט, קוד יציאה ומסקנה לכל אחת.
+
+## מה לומדים
+איך לבדוק שהפקודות של USBGuard מתנהגות כמו שאתה מצפה.
+
+---
+
+```text
+PROMPT 14 — Gate G-01 Tests Part 1
+
+LAB ENVIRONMENT ONLY. Do not run on development host.
+
+Execute the following tests and document results:
+
+1. Check usbguard version and available CLI commands.
+2. Check daemon configuration: RuleFile vs RuleFolder.
+3. Test: Add temporary rule, verify it appears, remove it, verify gone.
+4. Test: Add permanent rule, verify where it was saved.
+5. Test: Check if adding a rule affects already-connected devices.
+
+For each test, record:
+- Exact command
+- Output
+- Exit code
+- Conclusion
+
+Do NOT proceed to Part 2 until these are verified.
+Return test report.
+```
+
+## משימות מפורטות
+
+### לפני בדיקות שמשנות policy
 - אמת את זהות סביבת המעבדה.
 - הצג את גרסת USBGuard ואת תצורת ה-daemon.
 - בדוק את מצב ההתקנים והכללים לפני כל ניסוי.
@@ -12,18 +47,21 @@
 - ודא שיש מסלול התאוששות.
 - אם אחד התנאים אינו מתקיים, עצור.
 
-## בדוק את הנושאים הבאים
+### בדוק את הנושאים הבאים (חלק א`)
+1. בדוק usbguard version ואת פקודות ה-CLI הזמינות.
+2. בדוק תצורת דמון: RuleFile לעומת RuleFolder.
+3. בדיקה: הוסף כלל זמני, אמת שהוא מופיע, הסר אותו, אמת שנעלם.
+4. בדיקה: הוסף כלל קבוע, אמת היכן נשמר.
+5. בדיקה: בדוק אם הוספת כלל משפיעה על התקנים שכבר מחוברים.
 
-1. ההבדל בין `allow-device` לבין `allow-device --permanent`.
-2. ההבדל בין `append-rule` לבין `append-rule --temporary`.
-3. התנהגות `remove-rule` כאשר משתמשים ב-Rule ID עדכני.
-4. התנהגות `block-device` מול התקן מחובר.
-5. סדר הערכת הכללים והכלל הראשון שתואם.
-6. ההבדל בין policy פעילה לבין קובץ policy קבוע.
-7. התנהגות לאחר restart ו-reboot.
-8. אמינות השעון לאחר reboot.
-9. התנהגות במקרה של כלל קבוע שחופף לכלל זמני.
-10. התנהגות במקרה של כשל או היעדר IPC.
+עבור כל בדיקה, רשום:
+- פקודה מדויקת
+- פלט
+- קוד יציאה
+- מסקנה
+
+אל תעבור לחלק ב` עד שהבדיקות אומתו.
+החזר דוח בדיקות.
 
 ## תיקון קריטי (חובה)
 
@@ -31,19 +69,9 @@
 - אל תניח ש-`remove-rule` מקבל hash במקום Rule ID.
 - אל תניח שהסרת כלל זמני חוסמת את ההתקן.
 
-## לכל ניסוי שמור
-
-- פקודה מדויקת.
-- מצב לפני.
-- stdout ו-stderr.
-- קוד יציאה.
-- מצב אחרי.
-- מסקנה.
-- מגבלות הניסוי.
-
 ## ערך החזרה
 
-דוח G-01 שניתן לעקוב אחריו. אין להציג מסקנות שלא נבדקו בפועל.
+דוח G-01 חלק א` שניתן לעקוב אחריו. אין להציג מסקנות שלא נבדקו בפועל.
 
 ## איסורים
 

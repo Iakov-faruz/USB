@@ -1,10 +1,48 @@
-# פרומפט 09 — זמן, TTL ואמינות השעון
+# פרומפט 11 — בדיקות זמן ושעון (Time Guards)
 
 ## מטרה
-להגדיר בסיס אמין לתפוגת אישורים.
+איך לטפל בזמן בצורה בטוחה (לא לסמוך על השעון בעיוורון). יישום פונקציות קריאת Epoch, בדיקת אמינות שעון וזיהוי קפיצות שעון.
 
-## דרישות
+## קבצים צפויים
+`scripts/lib/time-guards.sh`, `tests/unit/test_time_guards.sh`
 
+## קריטריון אימות
+הרץ את הבדיקות. ודא שאף בדיקה לא משנה את שעון המערכת.
+
+## מה לומדים
+איך לטפל בזמן בצורה בטוחה (לא לסמוך על השעון בעיוורון).
+
+---
+
+```text
+PROMPT 11 — Time Guards
+
+Implement scripts/lib/time-guards.sh:
+
+1. Function get_current_epoch(): return current Unix timestamp.
+
+2. Function is_clock_reasonable():
+   - Check current time > MIN_REASONABLE_EPOCH
+   - Check current time < some sane maximum (e.g. year 2100)
+   - Return 0 if reasonable, 1 if suspicious
+
+3. Function detect_clock_jump(last_known_time):
+   - Compare current time with last known
+   - If difference > MAX_CLOCK_JUMP_SECONDS, return warning
+   - Do NOT change system clock
+
+4. Note: TTL is calendar-based (Epoch). If clock is unreliable after
+   reboot, do NOT auto-restore permissions (SRS time model).
+
+Create tests/unit/test_time_guards.sh that tests:
+- Current time is reasonable
+- Simulated past timestamp (before 2020) is flagged
+- Clock jump detection works
+
+Run tests and report results.
+```
+
+## משימות מפורטות
 1. השתמש ב-Epoch לציון זמני תפוגה, לפי ה-SRS.
 2. הפרד בין זמן נוכחי, זמן יצירה וזמן תפוגה.
 3. ודא שערכים שליליים, חסרים או לא תקינים נדחים.

@@ -1,6 +1,47 @@
-# פרומפט 26 — סקירת אבטחה ובדיקות שליליות
+# פרומפט 30 — סקירת אבטחה (Security Review)
 
 ## מטרה
+איך לבדוק קוד שכתבת מנקודת מבט של תוקף. סקירת אבטחה מלאה ללא שינויים בקוד.
+
+## קבצים צפויים
+אין קבצי קוד חדשים. רק דוח ממצאים.
+
+## קריטריון אימות
+בדוק שהרשימה כוללת חומרה ומיקום לכל ממצא.
+
+## מה לומדים
+איך לבדוק קוד שכתבת מנקודת מבט של תוקף.
+
+---
+
+```text
+PROMPT 30 — Security Review
+
+REVIEW ONLY. Do not modify files.
+
+Review the entire implementation for security issues:
+
+1. Input validation and injection risks.
+2. File permissions and symlink attacks.
+3. Race conditions and locking gaps.
+4. Error handling and information leakage.
+5. Command injection in subprocess calls.
+6. Sensitive data in logs.
+7. Authorization bypass possibilities.
+8. Rule ID handling (stale IDs).
+9. Assumption that rule removal equals device blocking.
+10. Recovery behavior in uncertain states.
+
+For each finding:
+- Severity (critical/high/medium/low)
+- File and line
+- Attack scenario
+- Recommended fix
+
+Do NOT fix anything. Return findings list and stop.
+```
+
+## משימות מפורטות
 בצע סקירת אבטחה של המימוש הקיים. אל תוסיף תכונות חדשות ואל תבצע refactor רחב.
 
 ## בדוק
@@ -23,7 +64,7 @@
 
 ## פורמט החזרה לכל ממצא
 
-- חומרה.
+- חומרה (קריטי / גבוה / בינוני / נמוך).
 - קובץ ושורה.
 - תרחיש ניצול או כשל.
 - השפעה.

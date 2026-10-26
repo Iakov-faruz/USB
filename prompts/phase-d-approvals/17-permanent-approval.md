@@ -1,6 +1,43 @@
-# פרומפט 17 — אישור קבוע
+# פרומפט 19 — אישור קבוע (Permanent Approval Flow)
 
 ## מטרה
+איך לבצע פעולה שמשאירה חותמת קבועה במערכת. יישום זרימת אישור קבוע עם אימות התמדה.
+
+## קבצים צפויים
+`scripts/lib/stages.sh` (חלק אישור קבוע), `tests/unit/test_permanent_approval.sh`
+
+## קריטריון אימות
+הרץ את הבדיקות וודא שההתמדה נבדקת.
+
+## מה לומדים
+איך לבצע פעולה שמשאירה חותמת קבועה במערכת.
+
+---
+
+```text
+PROMPT 19 — Permanent Approval Flow
+
+Implement permanent approval in scripts/lib/stages.sh:
+
+Workflow:
+1. Validate request and device info.
+2. Read current policy and existing rules.
+3. Check for duplicates.
+4. Choose the correct USBGuard action for permanent approval
+   (based on G-01 findings).
+5. Add permanent rule.
+6. Verify rule exists in active policy AND persistent storage.
+7. Write audit entry distinguishing permanent from temporary.
+
+Constraints:
+- Do NOT blindly run allow-device followed by append-rule.
+- Do NOT use Rule ID as permanent identifier.
+- Verify persistence according to target configuration.
+
+Create tests with mock adapter. Run and report results.
+```
+
+## משימות מפורטות
 ממש את זרימת האישור הקבוע לפי ה-SRS ולפי תוצאות G-01.
 
 ## דרישות

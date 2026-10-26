@@ -1,10 +1,48 @@
-# פרומפט 06 — נעילה ופעולות מקבילות
+# פרומפט 08 — מנגנון נעילה (File Locking)
 
 ## מטרה
-למנוע שתי פעולות שמשנות את אותו מצב בו-זמנית.
+למנוע משני תהליכים לשנות את אותו קובץ בו-זמנית. בניית מנגנון נעילה עם flock ונעילה מרכזית.
 
-## דרישות
+## קבצים צפויים
+`scripts/lib/lock.sh`, `tests/unit/test_lock.sh`
 
+## קריטריון אימות
+הרץ את הבדיקות וודא שאין "נעילה תקועה".
+
+## מה לומדים
+איך למנוע משני תהליכים לשנות את אותו קובץ בו-זמנית.
+
+---
+
+```text
+PROMPT 08 — File Locking
+
+Implement scripts/lib/lock.sh:
+
+1. Use flock on a central lock file path.
+2. Function acquire_lock(timeout_seconds):
+   - Try to acquire lock
+   - If timeout reached, return error code
+   - If lock acquired, store file descriptor
+3. Function release_lock():
+   - Close file descriptor (releases lock)
+   - Handle case where lock was not held
+4. Trap EXIT to ensure lock is released on script termination.
+
+Constraints (SRS SEC-03):
+- Do NOT implement --force flag.
+- Do NOT delete lock file to "fix" stuck locks.
+
+Create tests/unit/test_lock.sh that tests:
+- Lock acquisition succeeds when free
+- Second acquisition fails/waits when held
+- Lock released after function completes
+- Lock released after simulated error
+
+Run tests and report results.
+```
+
+## משימות מפורטות
 1. השתמש במנגנון הנעילה שאושר בתכנון, כגון `flock`.
 2. הגדר את נתיב קובץ הנעילה במקום מרכזי (על פי סעיף 10 ב-USB.md: `/run/lock/usbguard-approval-manager.lock`).
 3. ודא שכל פעולה שמשנה מצב משותף משתמשת באותה מדיניות נעילה.

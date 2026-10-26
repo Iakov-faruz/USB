@@ -1,6 +1,42 @@
-# פרומפט 28 — מטריצת בדיקות ושחרור סופי
+# פרומפט 32 — בדיקת שחרור סופית (Final Release Audit)
 
-## מטרה
+## קבצים צפויים
+אין קבצי קוד חדשים. רק דוח שחרור.
+
+## קריטריון אימות
+בדוק שהדוח כולל החלטה מנומקת.
+
+## מה לומדים
+איך להחליט אם מוצר מוכן לשימוש.
+
+---
+
+```text
+PROMPT 32 — Final Release Audit
+
+READ-ONLY FINAL AUDIT. Do not modify files.
+
+1. Rebuild requirements traceability matrix.
+2. Verify each acceptance criterion against evidence.
+3. Run safe validation commands.
+4. Review full Git diff for unrelated changes.
+5. Check for secrets, debug files, or sensitive data.
+6. Review test results and identify gaps.
+7. Verify documentation matches implementation.
+8. Identify requirements needing hardware/lab validation.
+9. Do NOT claim production readiness if evidence is missing.
+
+Produce:
+- Executive summary.
+- Requirement-by-requirement status.
+- Security findings by severity.
+- Outstanding blockers.
+- Decision: READY FOR LAB VALIDATION / NOT READY / READY FOR RELEASE REVIEW.
+
+Explain the evidence supporting the decision. Stop.
+```
+
+## משימות מפורטות
 בצע סקירת שחרור מלאה מול SRS v4.4 Final Frozen (`USB.md`).
 
 אל תוסיף תכונות ואל תבצע refactor רחב. תקן רק ליקויים שאושרו.

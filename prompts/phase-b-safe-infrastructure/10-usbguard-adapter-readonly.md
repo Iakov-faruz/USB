@@ -1,10 +1,50 @@
-# פרומפט 10 — USBGuard Adapter לקריאה בלבד
+# פרומפט 12 — ממשק קריאה בלבד (USBGuard Read-Only Adapter)
 
 ## מטרה
-לרכז את כל האינטראקציה עם USBGuard ברכיב אחד. בשלב זה **מותרות רק פעולות קריאה**.
+איך לקרוא מידע מ-USBGuard בלי לשנות כלום. יישום פונקציות קריאה בלבד עם בדיקות באמצעות פקודות מדומות.
 
-## דרישות
+## קבצים צפויים
+`scripts/lib/usbguard-policy.sh` (חלק קריאה בלבד), `tests/unit/test_policy_read.sh`
 
+## קריטריון אימות
+הרץ את הבדיקות עם פקודות מדומות (לא באמת מול המערכת).
+
+## מה לומדים
+איך לקרוא מידע מ-USBGuard בלי לשנות כלום.
+
+---
+
+```text
+PROMPT 12 — USBGuard Read-Only Adapter
+
+Implement read-only functions in scripts/lib/usbguard-policy.sh:
+
+1. Function get_usbguard_version(): run `usbguard --version` and return output.
+
+2. Function list_blocked_devices(): 
+   - Run `usbguard list-devices --blocked` (or parse list-devices)
+   - Return structured output
+   - Handle empty result gracefully
+
+3. Function list_active_rules():
+   - Run `usbguard list-rules`
+   - Return output
+
+4. Function check_daemon_status():
+   - Check if usbguard-daemon is running
+   - Check IPC connectivity
+   - Return status code
+
+Constraints:
+- Do NOT implement any write operations yet.
+- Do NOT parse with complex regex if simple parsing suffices.
+- Use timeout for all external commands.
+
+Create tests/unit/test_policy_read.sh with mocked usbguard commands.
+Run tests and report results.
+```
+
+## משימות מפורטות
 1. בדוק את גרסת USBGuard ואת ממשקי ה-CLI הזמינים בסביבת היעד.
 2. רכז את הגישה ל-USBGuard ברכיב אחד.
 3. הפרד בין פקודות קריאה לבין פקודות שמשנות policy.

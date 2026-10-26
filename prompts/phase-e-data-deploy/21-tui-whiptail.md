@@ -1,9 +1,43 @@
-# פרומפט 21 — TUI באמצעות whiptail
+# פרומפט 23 — ממשק גרפי (TUI Implementation)
 
 ## מטרה
-ממש ממשק אינטראקטיבי בלי לעקוף את הלוגיקה העסקית.
+איך לבנות ממשק אינטראקטיבי בלי לשכפל לוגיקה עסקית. יישום TUI באמצעות whiptail שמפנה לשכבת השירות.
 
-## דרישות
+## קבצים צפויים
+`scripts/usb-approve.sh` (הוספת חלק TUI), `tests/unit/test_tui.sh`
+
+## קריטריון אימות
+הרץ את הממשק (דורש התקנת whiptail) ובדוק שניתן לנווט ולבטל.
+
+## מה לומדים
+איך לבנות ממשק אינטראקטיבי בלי לשכפל לוגיקה עסקית.
+
+---
+
+```text
+PROMPT 23 — TUI Implementation
+
+Implement TUI using whiptail:
+
+1. Display list of blocked devices (multi-select).
+2. Ask for approval type (permanent/temporary).
+3. Ask for TTL if temporary.
+4. Show summary before executing.
+5. Re-read device state before commit (SRS 4.0).
+6. Display result based on actual outcome.
+
+Constraints:
+- TUI calls service layer, does not contain business logic.
+- Handle Cancel/Escape gracefully.
+- Do not hold lock while user is selecting.
+- Do not display sensitive data.
+
+Create tests for navigation and cancellation.
+Run tests and report results.
+```
+
+## משימות מפורטות
+ממש ממשק אינטראקטיבי בלי לעקוף את הלוגיקה העסקית.
 
 1. ה-TUI קורא לשכבת השירות הקיימת; אין לשכפל בו לוגיקה עסקית.
 2. הצג רק פעולות שהמשתמש מורשה לבצע.

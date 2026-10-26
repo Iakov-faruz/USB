@@ -1,9 +1,47 @@
-# פרומפט 24 — ייבוא וייצוא JSON
+# פרומפט 26 — ייבוא וייצוא (Import and Export)
 
 ## מטרה
-לאפשר העברת נתונים בלי לאפשר לקובץ חיצוני לשנות מדיניות באופן בלתי מבוקר.
+איך להעביר נתונים בין מערכות בלי לאפשר חדירה. ייצוא כללי קבוע ורשומות TTL פעילות, וייבוא עם ולידציה קשוחה ודחיית קבצים פגומים.
 
-## דרישות
+## קבצים צפויים
+`scripts/export-rules.sh`, `scripts/import-rules.sh`, `tests/unit/test_import_export.sh`
+
+## קריטריון אימות
+הרץ את הבדיקות וודא שייבוא פגום נדחה.
+
+## מה לומדים
+איך להעביר נתונים בין מערכות בלי לאפשר חדירה.
+
+---
+
+```text
+PROMPT 26 — Import and Export
+
+Implement import/export:
+
+1. export-rules.sh:
+   - Export permanent rules and active TTL records.
+   - Exclude system rules.
+   - Do not include secrets.
+
+2. import-rules.sh:
+   - Validate schema before importing.
+   - Reject unsupported schema versions.
+   - Reject missing required fields.
+   - Show diff before applying.
+   - Do NOT execute system commands from imported data.
+   - Separate data import from policy change.
+
+Constraints:
+- Imported file must not bypass authorization.
+- Clear error messages without exposing sensitive info.
+
+Create tests for valid/invalid JSON, round-trip, and rejection cases.
+Run tests and report results.
+```
+
+## משימות מפורטות
+לאפשר העברת נתונים בלי לאפשר לקובץ חיצוני לשנות מדיניות באופן בלתי מבוקר.
 
 1. השתמש ב-schema מפורש.
 2. אמת את כל הנתונים לפני החלתם.

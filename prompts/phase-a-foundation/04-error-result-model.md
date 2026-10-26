@@ -1,7 +1,44 @@
-# פרומפט 04 — מודל שגיאות ותוצאות
+# פרומפט 06b — מודל שגיאות ותוצאות (Error Result Model)
 
 ## מטרה
-למנוע מצב שבו פעולה נכשלה אך המערכת מדווחת הצלחה.
+למנוע מצב שבו פעולה נכשלה אך המערכת מדווחת הצלחה. הגדרת מודל תוצאה עם הבחנה ברורה בין סוגי כישלון שונים.
+
+## קבצים צפויים
+אין קבצי קוד חדשים. רק מסמך הגדרת מודל השגיאות.
+
+## קריטריון אימות
+הסוכן צריך להחזיר הגדרת מודל תוצאה עם כל מצבי הכשל ורשימת קודי היציאה.
+
+## מה לומדים
+איך להגדיר מודל שגיאות ותוצאות שמאפשר זיהוי מדויק של מצבי כשל.
+
+---
+
+```text
+PROMPT 06b — Error Result Model
+
+Implement an error/result model layer:
+
+1. Define result states:
+   - Operation succeeded
+   - Operation failed before policy change
+   - Policy change failed
+   - Policy change succeeded but Audit write failed (`POLICY_APPLIED_AUDIT_FAILED`)
+   - State where it is impossible to know what changed
+   - State requiring recovery
+
+2. Map each state to exact exit codes per SRS section 21:
+   - EXIT_OK = 0
+   - EXIT_VALIDATION = 7
+   - EXIT_INCONSISTENT = 9
+   - EXIT_PARTIAL = 13
+   - EXIT_AUDIT = 14
+   - EXIT_CANCELLED = 130
+
+3. Define return structure for CLI and library functions.
+
+Do not implement business logic. Return the model definition and stop.
+```
 
 ## משימה
 
