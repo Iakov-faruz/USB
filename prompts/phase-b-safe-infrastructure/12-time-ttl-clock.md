@@ -4,7 +4,12 @@
 איך לטפל בזמן בצורה בטוחה (לא לסמוך על השעון בעיוורון). יישום פונקציות קריאת Epoch, בדיקת אמינות שעון וזיהוי קפיצות שעון.
 
 ## קבצים צפויים
-`scripts/lib/time-guards.sh`, `tests/unit/test_time_guards.sh`
+`scripts/lib/time-guards.sh`, `scripts/lib/clock_state.py`,
+`tests/unit/test_time_guards.sh`
+
+עד לאימות G-01, מימוש ברירת המחדל של `clock_sync_evidence` חייב להחזיר כשל;
+בדיקות היחידה רשאיות להחליף אותו בספק מדומה בלבד. אין להפעיל ספק מערכת אמיתי
+או להציג שעון כאמין על סמך timestamp סביר בלבד.
 
 ## קריטריון אימות
 הרץ את הבדיקות. ודא שאף בדיקה לא משנה את שעון המערכת.
@@ -45,7 +50,8 @@ Implement scripts/lib/time-guards.sh:
    reboot, do NOT auto-restore permissions (SRS time model).
 
 5. Implement the trust check using the time-sync source and evidence
-   verified by G-01 for the target. Missing/unsupported status fails closed.
+   verified by G-01 for the target. Until then, the default provider hook
+   fails closed; a test double is not production evidence.
 
 Create tests/unit/test_time_guards.sh that tests:
 - Current Epoch above MIN_REASONABLE_EPOCH

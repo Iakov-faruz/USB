@@ -47,7 +47,7 @@
 **נימוק ארכיטקטוני:** יש הבדל בין שינוי מצב התקן מחובר לבין שינוי policy עבור חיבורים עתידיים. פעולת USBGuard אחת עשויה לבצע את שניהם, אך רק G-01 מול הגרסה והתצורה שביעד יכול להוכיח זאת. ה-Adapter חייב לבחור פעולה לפי ראיות G-01, למנוע הוספה כפולה, ולאמת בנפרד מצב התקן ו-policy. לפני הסרה, מאתרים Rule ID עדכני ומוודאים התאמת כלל קנונית יחידה; Hash אינו Rule ID ואינו מועבר ל-`remove-rule`.
 
 **משימות פיתוח (Deliverables):**
-1. **M-2.1:** מימוש הפונקציות הבסיסיות ב-`usbguard-policy.sh`: `list_blocked_devices`, `get_active_rules`, `get_persistent_policy_path`.
+1. **M-2.1:** מימוש הפונקציות הבסיסיות ב-`usbguard-policy.sh`: `list_blocked_devices`, `get_active_rules`, `get_persistent_policy_paths`. יש לתמוך ב-`RuleFile` וב-`RuleFolder` גם כשהם מוגדרים יחד, לאמת כל מקור בנפרד, ולא להחזיר רשימה חלקית אם מקור כלשהו אינו בטוח או זמין.
 2. **M-2.2:** מימוש `approve_device` (קריאה ל-IPC לשינוי מצב התקן מחובר).
 3. **M-2.3:** מימוש `add_temporary_rule` ו-`add_permanent_rule` (קריאות `append-rule` עם ה-Flags הנכונים).
 4. **M-2.4:** מימוש `remove_rule_by_canonical_rule`: התאמה קנונית יחידה, איתור Rule ID עדכני ואימות הכלל מיד לפני ההסרה. Hash משמש לבדיקת שלמות/סינון בלבד ואינו מזהה להסרה.
