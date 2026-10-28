@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Separate operational logging from the protected Audit JSONL stream.
+
+if [[ "$(declare -p USBAM_LOGGER_LIBRARY_LOADED 2>/dev/null || true)" != "declare -r USBAM_LOGGER_LIBRARY_LOADED="* ]]; then
+  readonly USBAM_LOGGER_VERSION="1.0.0"
+  readonly USBAM_LOGGER_SYSLOG_TAG="usbguard-approval-manager"
+  readonly USBAM_LOGGER_AUDIT_WRITER="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/audit_write.py"
+  declare -gr USBAM_LOGGER_LIBRARY_LOADED=1
+fi
+
+log_operational() {
+  local LC_ALL=C
+  local priority="$1"
+  local message="$2"
+
+  if [[ "$message" =~ [[:cntrl:]] ]]; then
+    printf 'logger: ERROR: operational message contains control characters\n' >&2
+    return 1
+  fi
+  if ! command -v logger >/dev/null 2>&1; then
+    printf 'logger: ERROR: system logger utility is unavailable\n' >&2
+    return 1
+  fi
+  if ! logger --tag "$USBAM_LOGGER_SYSLOG_TAG" --priority "$priority" -- "$message"; then
+    printf 'logger: ERROR: failed to write operational log\n' >&2
+    return 1
+  fi
+}
+
+log_info() {
+  log_operational user.info "$*"
+}
+
+log_error() {
+  log_operational user.err "$*"
+}
+
+log_audit() {
+  if (( $# < 3 || $# > 4 )); then
+    printf 'logger: ERROR: log_audit requires action, policy result, correlation ID, and optional details\n' >&2
+    return 2
+  fi
+  if [[ ! -r "$USBAM_LOGGER_AUDIT_WRITER" ]]; then
+    printf 'logger: ERROR: Audit writer is missing or unreadable\n' >&2
+    return 1
+  fi
+  if ! python3 "$USBAM_LOGGER_AUDIT_WRITER" \
+    --action "$1" \
+    --policy-result "$2" \
+    --correlation-id "$3" \
+    --details "${4:-}"; then
+    printf 'logger: ERROR: Audit write failed; policy outcome must be preserved\n' >&2
+    return 1
+  fi
+}
