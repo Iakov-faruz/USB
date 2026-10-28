@@ -26,7 +26,8 @@ Create systemd unit files:
    - ExecStart=/usr/libexec/usbguard-approval-manager/cleanup-expired.sh
    - After=usbguard.service
    - Hardening: ProtectSystem=strict, PrivateTmp=true, NoNewPrivileges=true
-   - ReadWritePaths: state dir, backup dir, log dir, lock path
+   - ReadWritePaths: state dir, log dir, lock path; do NOT grant the Reaper
+     write access to the backup directory.
 
 2. usbguard-approval-ttl.timer:
    - OnBootSec=1min
@@ -49,7 +50,7 @@ Report results.
    sudoers; היא אינה מקבלת גישת IPC ישירה או הרשאות לשירות עצמו.
 2. הגדר בעלות והרשאות מדויקות לקבצים ולספריות (על פי סעיף 10 ב-USB.md).
 3. אל תפעיל את השירות בהרשאה רחבה יותר מהנדרש; עבור Reaper נדרשת הרשאת root לפי ה-SRS. צמצם capabilities והקשח את היחידה בלי לשבור IPC.
-4. הגדר `ReadWritePaths` לכל הנתיבים שהשירות חייב לכתוב אליהם, לרבות נתיב הנעילה וקובצי המצב, לפי התכנון המאושר.
+4. הגדר `ReadWritePaths` רק לנתיבים שה-Reaper חייב לכתוב אליהם: מצב, לוגים ונעילה. אין להעניק לשירות כתיבה לתיקיית הגיבויים; פעולות גיבוי/שחזור מקבלות הרשאה רק בזמן הפעולה המאושרת.
 5. השתמש בהגבלות systemd המתאימות ליכולות השירות.
 6. אל תחסום גישה הנדרשת ל-USBGuard IPC.
 7. הגדר התנהגות בעת restart וכשל.

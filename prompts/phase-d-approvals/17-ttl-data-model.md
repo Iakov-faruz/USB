@@ -32,6 +32,13 @@ created_at, created_by, scope, or any other field. Never persist a USBGuard
 Rule ID. If USBGuard cannot yield one unambiguous canonical rule match, fail
 closed and require recovery.
 
+Keep clock_state.json separate from TTL records. Store the SRS-defined
+schema_version, last_trusted_epoch, sync_provider, sync_status, boot_id, and
+last_trusted_boottime_seconds; use it only with the same-boot/reboot checks
+defined in the SRS. A missing/corrupt clock state can be initialized only when
+there are no non-expired TTL records and current synchronization is verified;
+otherwise require explicit recovery.
+
 2. Function create_ttl_record(): create new record with pending status.
 3. Function get_ttl_record(managed_id): retrieve record by ID.
 4. Function update_ttl_status(managed_id, new_status): atomic update.

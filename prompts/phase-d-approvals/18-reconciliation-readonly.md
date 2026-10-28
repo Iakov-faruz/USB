@@ -27,6 +27,7 @@ Implement read-only reconciliation in scripts/lib/reconcile.sh:
    - Ambiguous matches (cannot determine which rule matches)
    - Permanent-rule overlap
    - Untrusted clock or missing synchronization evidence
+   - Pending records left by an interrupted earlier operation
 
 3. Return structured report:
    - consistent: everything matches
@@ -37,6 +38,9 @@ Constraints:
 - Do NOT add or remove rules.
 - Do NOT modify TTL file.
 - Do NOT assume missing rule means device is blocked.
+- A missing rule for an active TTL record requires explicit recovery; never
+  recreate the rule automatically.
+- Report stale pending records for recovery; never replay their policy action.
 
 Create tests/unit/test_reconcile.sh with mock data.
 Run tests and report results.

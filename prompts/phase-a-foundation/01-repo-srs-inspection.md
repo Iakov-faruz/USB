@@ -21,7 +21,8 @@ READ-ONLY TASK. Do not modify files.
 
 1. Run `git status --short` and report existing changes.
 2. List the complete directory tree of the repository.
-3. Locate and read USB.md, record its version/status, and distinguish approved baseline requirements from draft amendments.
+3. Locate and read USB.md; confirm approved SRS v4.5 status and record any
+   explicit G-01 or restore/deployment gates as implementation constraints.
 4. Identify all existing scripts, tests, and configuration files.
 5. Build a traceability table for every defined FR/SEC/OPS/NFR requirement and every UT-xx/T-xx test ID.
    Report implementation and test evidence separately; use blocked/unverified when evidence is unavailable.

@@ -4,7 +4,8 @@
 איך לבנות ממשק שמשתמשים יכולים להפעיל משורת הפקודה. יישום נקודות כניסה ל-CLI עם ולידציה של ארגומנטים וקודי יציאה מדויקים.
 
 ## קבצים צפויים
-`scripts/usb-approve.sh`, `scripts/usbguard-status.sh`, `tests/unit/test_cli.sh`
+`scripts/usb-approve.sh`, `scripts/usbguard-status.sh`,
+`scripts/usb-revoke.sh`, `tests/unit/test_cli.sh`
 
 ## קריטריון אימות
 הרץ `./scripts/usb-approve.sh --help` ו-`./scripts/usbguard-status.sh --help`.
@@ -32,6 +33,16 @@ Implement CLI entry points:
    - Report daemon status, IPC status, timer status, TTL counts.
    - Return non-zero if daemon is down.
 
+3. scripts/usb-revoke.sh:
+   - Arguments: --managed-id, --device, --dry-run, --help.
+   - Require an expired TTL record, a current USBGuard device ID, and
+     interactive administrator confirmation; provide no unattended approval.
+   - Call the dedicated revocation service; never implement policy logic in
+     the entry point.
+   - Re-fetch and revalidate under the global lock before any action.
+   - Report separately if disconnected, already blocked, ambiguous, or allowed
+     by an independent rule; do not call block-device in those cases.
+
 Constraints:
 - Use the service layer (stages.sh), do not duplicate logic.
 - Do not expose sensitive information.
@@ -39,13 +50,16 @@ Constraints:
 - JSON output includes schema_version and separate policy/audit results.
 - Do not add --vidpid or approval by VID:PID alone; --device must identify
   a device from the current USBGuard state.
+- Do not let the Reaper, timer, restore, or recovery invoke usb-revoke.sh.
+- Stop before any policy/state mutation when a restore journal is unresolved.
 
 Create tests for argument parsing and exit codes.
 Run tests and report results.
 ```
 
 ## משימות מפורטות
-בפרומפט זה ממש את `usb-approve.sh` ואת `usbguard-status.sh` בלבד. ממשקי
+בפרומפט זה ממש את `usb-approve.sh`, `usbguard-status.sh` ואת נקודת הכניסה
+המפורשת `usb-revoke.sh` בלבד. ממשקי
 הגיבוי, השחזור, הייבוא והייצוא מטופלים בפרומפטים 26–27; אין להמציא עבורם
 דגלים בפרומפט זה.
 
@@ -59,6 +73,9 @@ Run tests and report results.
 8. כל פעולה שמשנה policy חייבת להשתמש ב-locking, validation, Audit ו-recovery המתאימים.
 9. פקודות קריאה בלבד אינן משנות מצב.
 10. טפל בביטול, קלט לא תקין ו-USBGuard לא זמין.
+11. `usb-revoke.sh` דורש אישור אינטראקטיבי, רשומת `expired` ומזהה התקן
+    עדכני; אינו משנה TTL או מדיניות קבועה, ומאמת חסימה לאחר פעולה שאושרה
+    ב-G-01.
 
 ## בדיקות
 
@@ -69,6 +86,8 @@ Run tests and report results.
 - JSON תקין.
 - קודי יציאה.
 - `--dry-run` משאיר policy, TTL, Audit וכל State ללא שינוי.
+- בדיקות ביטול הרשאה: קלט לא תקין, חסר אישור, התקן מנותק/חסום, כלל עצמאי,
+  התאמה עמומה, הצלחה מאומתת ותוצאה לא ודאית.
 - fake USBGuard.
 
 ## איסורים

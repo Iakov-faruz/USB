@@ -20,14 +20,19 @@ PROMPT 00 — Global Working Rules
 You are working on the USBGuard Approval Manager project.
 
 SOURCE OF TRUTH:
-- USB.md is the source of truth. v4.5 is a review draft until explicitly approved.
-- Until approval, v4.4 remains the approved baseline; report any draft conflict instead of silently choosing or implementing it.
+- USB.md v4.5 (approved 2026-10-28) is the authoritative SRS and implementation baseline.
+- v4.4 is retained as historical reference only. Do not silently substitute it for v4.5.
+- G-01 and restore/deployment safety evidence remain mandatory gates before implementing or enabling dependent policy-changing operations.
 - Do not invent requirements, paths, or behaviors not in the SRS.
 - If the SRS is ambiguous or a prompt/roadmap adds an unapproved requirement, stop and report the exact issue.
 
 EXECUTION DISCIPLINE:
 - Work only on the current task. Do not proceed without approval.
 - Begin with read-only inspection. Modify files only when authorized.
+- Keep implementation modular, cohesive, and easy to extend; prefer small
+  focused files and functions over monolithic components.
+- Keep code readable and lightweight, follow existing conventions, and add
+  concise comments only where they clarify non-obvious intent.
 - Never use destructive Git commands (reset --hard, clean -fd).
 - Preserve unrelated user changes.
 - Do not commit or create checkpoints unless explicitly requested.

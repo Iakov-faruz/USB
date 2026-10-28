@@ -23,16 +23,20 @@ Implement scripts/lib/config-reader.sh:
 
 2. Validation rules (SRS SEC-01, SEC-02):
    - Keys must match ^[A-Z][A-Z0-9_]*$
-   - Accept only keys defined in SRS section 11
+   - Accept only the six keys in approved SRS v4.5 section 11:
+     TEMP_TTL_SECONDS, MIN_REASONABLE_EPOCH, MAX_CLOCK_JUMP_SECONDS,
+     BACKUP_KEEP, IPC_TIMEOUT_SECONDS, and LOG_LEVEL
    - Reject duplicate keys
    - Reject shell expansion, command substitution, backticks, control characters, and malformed assignments
-   - Validate integer ranges for known keys
+   - Validate integer ranges for integer keys and the exact LOG_LEVEL enum:
+     DEBUG, INFO, WARNING, ERROR
 
 3. Return non-zero exit code on validation failure with clear error.
 
 Constraints:
 - Do NOT use `source` or `eval`.
-- Use grep/awk for parsing.
+- Parse with Bash `read` and safe parameter expansion; do not invoke a shell
+  on configuration values or use `source`/`eval`.
 
 Create tests/unit/test_config_reader.sh that tests:
 - Valid config file and defaults
@@ -40,6 +44,7 @@ Create tests/unit/test_config_reader.sh that tests:
 - Config with $(rm -rf /) injection (should fail)
 - Config with invalid key name (should fail)
 - Unknown key and out-of-range value (should fail)
+- Invalid LOG_LEVEL and out-of-range BACKUP_KEEP/IPC_TIMEOUT_SECONDS (should fail)
 
 Run tests and report results.
 ```

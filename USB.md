@@ -1,10 +1,10 @@
 # USBGuard Approval Manager
 ## אפיון מוצר ומפרט טכני מאוחד - גרסה 4.5 Review Draft
 
-**סטטוס:** טיוטת הבהרות ועדכונים ל-v4.4, ממתינה לאישור. עד לאישור, v4.4 נשארת גרסת הבסיס המאושרת; לאחר אישור, מסמך זה יהיה מקור האמת.  
+**סטטוס:** v4.5 מאושרת כבסיס האפיון והמימוש החל מ-28.10.2026. שער G-01 ובדיקות שחזור/פריסה נשארים תנאי חובה לפני מימוש או הפעלה של פעולות ה-policy התלויות בהם.
 **ממשק:** TUI מבוסס `whiptail` ו-CLI.  
 **תאריך:** 26 באוקטובר 2026.  
-**בסיס:** v4.3.1 Final Baseline לאחר הטמעת דרישות ההפרדה בין `allow-device` ל-`append-rule`, השלמת קודי יציאה, והגדרת קריטריונים לבדיקת שעון ונעילה.
+**בסיס היסטורי:** v4.4 Final Frozen, שנבנתה על v4.3.1 לאחר הטמעת דרישות ההפרדה בין `allow-device` ל-`append-rule`, השלמת קודי יציאה, והגדרת קריטריונים לבדיקת שעון ונעילה; v4.5 מרחיבה ומחליפה אותה.
 
 > **הערת יישום קריטית:** זהו המפרט המחייב לפיתוח. לפני מימוש בסביבת ייצור, חובה להשלים את שער **G-01** (סעיף 24) מול גרסת USBGuard ותצורת היעד בפועל, ולתעד את התוצאות. התיעוד הרשמי של USBGuard מאשר שסדר הכללים משמעותי ושהכללים נבדקים ברצף; הוא אינו מוכיח שהמימוש הספציפי שלך כבר מתנהג נכון בכל תרחיש.
 
@@ -98,6 +98,7 @@ USBGuard Approval Manager היא שכבת ניהול מצומצמת מעל USBGu
 | **FR-14** | `--dry-run` לא ישנה מדיניות או State. |
 | **FR-19** | מניעת יצירת TTL אם מדיניות קבועה כבר מתירה את ההתקן (חפיפה). |
 | **FR-21** | הבחנה בין הסרת כלל זמני לבין חסימת התקן מחובר. |
+| **FR-22** | לאחר תפוגת TTL, חסימת התקן מחובר תתבצע רק בזרימת ביטול הרשאה נפרדת, מפורשת, מאומתת ומתועדת; ה-Reaper לעולם אינו חוסם התקן. |
 
 ---
 
@@ -113,6 +114,7 @@ USBGuard Approval Manager היא שכבת ניהול מצומצמת מעל USBGu
 | **SEC-09** | אירועי Audit מופרדים מלוג תפעולי, מובנים, מסוניטזים, ואינם כוללים סודות. כשל כתיבה מדווח בנפרד מתוצאת שינוי המדיניות. |
 | **SEC-16** | הבחנה בין הצלחת שינוי מדיניות לבין כשל Audit (`POLICY_APPLIED_AUDIT_FAILED`). |
 | **SEC-18** | Reaper לא יסיר כלל קבוע; התאמה עמומה גורמת לעצירה. |
+| **SEC-19** | `block-device` מותר רק בזרימת ביטול הרשאה נפרדת, לאחר אישור אינטראקטיבי, התאמה עדכנית וחד-משמעית, ובדיקת G-01; אין להפעילו מתוזמן או במצב לא ודאי. |
 
 ---
 
@@ -123,7 +125,7 @@ USBGuard Approval Manager היא שכבת ניהול מצומצמת מעל USBGu
 | **OPS-01** | מערכת קודי יציאה אחידה. |
 | **NFR-04** | סטטוס `--json` יציב עם `schema_version`. |
 
-חוזה `usbguard-status.sh --json` בגרסה 1: אובייקט עליון כולל `schema_version` (מספר `1`), `service_status`, `daemon_status`, `ipc_status`, `timer_status`, `ttl_counts`, `policy_result`, ו-`audit_result`. הערכים המותרים: `service_status` הוא `healthy|degraded|unavailable|unknown`; `daemon_status` הוא `running|stopped|unknown`; `ipc_status` הוא `connected|unavailable|unknown`; `timer_status` הוא `active|inactive|unknown`. `ttl_counts` כולל מונה שלם עבור כל אחד מהמפתחות `pending`, `active`, `inconsistent`, `recovery_required`, `expired`, לרבות אפס. `policy_result.status` הוא `applied|not_applied|unknown|not_applicable`; `audit_result.status` הוא `written|failed|not_applicable`; כל אובייקט כולל `detail_code` (מחרוזת או `null`). בפלט תוצאת פעולה, `policy_result` ו-`audit_result` הם אובייקטים נפרדים. אין לכלול סודות, ואין לשנות מבנה/משמעות שדות ללא העלאת `schema_version`.
+חוזה `usbguard-status.sh --json` בגרסה 1: אובייקט עליון כולל `schema_version` (מספר `1`), `service_status`, `daemon_status`, `ipc_status`, `timer_status`, `ttl_counts`, `policy_result`, ו-`audit_result`. הערכים המותרים: `service_status` הוא `healthy|degraded|unavailable|unknown`; `daemon_status` הוא `running|stopped|unknown`; `ipc_status` הוא `connected|unavailable|unknown`; `timer_status` הוא `active|inactive|unknown`. `ttl_counts` כולל מונה שלם עבור כל אחד מהמפתחות `pending`, `active`, `inconsistent`, `recovery_required`, `expired`, לרבות אפס. `policy_result.status` הוא `applied|not_applied|unknown|not_applicable`; `audit_result.status` הוא `written|failed|not_applicable`; כל אובייקט כולל `detail_code` (מחרוזת או `null`). בפלט תוצאת פעולה, `policy_result` ו-`audit_result` הם אובייקטים נפרדים. Journal שחזור פתוח מוצג כ-`service_status=degraded` ו-`detail_code=restore_recovery_required`; אין לכלול סודות, ואין לשנות מבנה/משמעות שדות ללא העלאת `schema_version`.
 
 ---
 
@@ -133,7 +135,7 @@ USBGuard Approval Manager היא שכבת ניהול מצומצמת מעל USBGu
 משתמש / sudoers
       |
       v
-Entry Points: TUI / CLI / Status / Import / Backup / Restore
+Entry Points: TUI / CLI / Status / Revoke / Import / Backup / Restore
       |
       v
 stages.sh + שכבת תיאום פעולות (Split-Locking)
@@ -146,7 +148,7 @@ stages.sh + שכבת תיאום פעולות (Split-Locking)
       +------------------------+
       |                        |
       v                        v
-USBGuard IPC/CLI          STATE_DIR: ttl.json, clock_state.json
+USBGuard IPC/CLI          STATE_DIR: ttl.json, clock_state.json, restore_journal.json
       |
       v
 usbguard-daemon + מאגר המדיניות הקבועה
@@ -156,6 +158,7 @@ usbguard-daemon + מאגר המדיניות הקבועה
 שכבת ההתאמה היחידה ל-USBGuard. אחראית ל:
 - בדיקת נגישות IPC.
 - **אישור מפורש של התקן מחובר כעת** (בנפרד מהוספת כלל).
+- חסימה מפורשת של התקן מחובר רק דרך זרימת ביטול הרשאה ייעודית ומאושרת, לאחר G-01.
 - **הוספת כלל זמני וקבוע** למדיניות הפעילה והמתמידה.
 - איתור מחדש של כלל לפי תוכנו (Hash/Canonical).
 - הסרת כלל זמני ובדיקת המדיניות האפקטיבית שנותרה.
@@ -166,14 +169,19 @@ usbguard-daemon + מאגר המדיניות הקבועה
 ## 9. עץ פרויקט
 
 ```text
-usbguard-approval-manager/
-+-- USB.md (SRS; v4.5 Review Draft)
-+-- conf/approval-manager.conf.example
-+-- scripts/ (Entry points + lib/)
-+-- systemd/
-+-- tests/ (unit/, integration/, fixtures/)
-+-- deploy.sh, deploy-lib.sh, deploy-uninstall.sh
--- validate_all.sh
+Repository root/
++-- USB.md (SRS)
++-- IMPLEMENTATION_ROADMAP.md
++-- prompts/
++-- usbguard-approval-manager/
+    +-- README.md
+    +-- conf/approval-manager.conf.example
+    +-- scripts/ (Entry points + lib/)
+    +-- systemd/
+    +-- docs/ (G-01 and release evidence)
+    +-- tests/ (unit/, integration/, fixtures/)
+    +-- deploy.sh, deploy-lib.sh, deploy-uninstall.sh
+    +-- validate_all.sh
 ```
 
 ---
@@ -225,7 +233,8 @@ usbguard-approval-manager/
 4. **ביצוע פעולות USBGuard:** אישור מפורש של ההתקן המחובר והוספת כלל זמני למדיניות הפעילה (ללא התמדה).
 5. אימות שהכלל הפעיל קיים ושההתקן אושר. עדכון הרשומה ל-`active`.
 6. **פיצוי:** אם הוספת כלל זמני נכשלת, יש לבדוק את המצב בפועל. ניתן להסיר רק כלל זמני שנוצר וזוהה באופן חד-משמעי. אין להניח שהסרתו מחזירה לאחור אישור של התקן מחובר. אם מצב ההתקן או המדיניות אינו ודאי, הרשומה עוברת ל-`recovery_required` ואין לבצע חסימה אוטומטית.
-7. **תפוגה:** ה-Reaper מסיר את הכלל הזמני, בודק את המדיניות האפקטיבית, ומדווח אם ההתקן נותר מותר מכוח כלל אחר.
+7. **תפוגה:** ה-Reaper מסיר את הכלל הזמני, בודק את המדיניות האפקטיבית, ומדווח אם ההתקן נותר מותר מכוח כלל אחר. הוא אינו חוסם את ההתקן.
+8. **ביטול הרשאה לאחר תפוגה:** אם התקן מחובר נשאר מותר, מנהל יכול להפעיל בנפרד את `usb-revoke.sh`. הפעולה דורשת אישור אינטראקטיבי מפורש; היא אינה מופעלת אוטומטית על ידי ה-Reaper, Timer, Restore או Recovery.
 
 ### 12.3 קדימות כללים
 אין להניח שכלל `allow` חדש יעקוף כלל `block` קודם. במקרה של התנגשות, הבקשה תידחה.
@@ -252,7 +261,7 @@ usbguard-approval-manager/
 
 ששת השדות המוצגים הם סכמת הרשומה המחייבת; אין להוסיף `created_at`, `created_by` או `scope` ללא שינוי מאושר של האפיון. `rule` הוא מחרוזת הכלל הקנונית המדויקת שנשמרת בעת יצירת הרשומה. `rule_sha256` הוא SHA-256 של בתי UTF-8 של אותה מחרוזת, ללא שינויי whitespace או נרמול בעת חישוב ה-hash. זיהוי כלל מול USBGuard חייב להתבסס על כלל קנוני תואם באופן חד-משמעי; `managed_id` וה-hash אינם Rule ID, ו-Rule ID נשלף מחדש רק בסמוך לפעולה. אם ה-Adapter אינו מסוגל להוכיח התאמה יחידה, אין לבצע שינוי policy.
 
-`clock_state.json` הוא קובץ תשתית נפרד, לא שדה ברשומת TTL. schema_version 1 כולל `last_trusted_epoch` (מספר שלם חיובי), `sync_provider` (מזהה מקור הזמן שאומת ב-G-01), ו-`sync_status` (`synchronized`). כותבים אותו אטומית רק לאחר אימות חיובי של מקור הזמן; אין לדרוס ראיית זמן אמינה בערך לא מאומת. קובץ חסר או פגום אינו נחשב לראיית סנכרון ומחייב בדיקה מחודשת/`recovery_required`.
+`clock_state.json` הוא קובץ תשתית נפרד, לא שדה ברשומת TTL. schema_version 1 כולל `last_trusted_epoch` (מספר שלם חיובי), `sync_provider` (מזהה מקור הזמן שאומת ב-G-01), `sync_status` (`synchronized`), `boot_id` (מזהה האתחול הנוכחי), ו-`last_trusted_boottime_seconds` (זמן `CLOCK_BOOTTIME` בעת הדגימה). כותבים אותו אטומית רק לאחר אימות חיובי של מקור הזמן; אין לדרוס ראיית זמן אמינה בערך לא מאומת. קובץ חסר או פגום אינו נחשב לראיית סנכרון: אם אין רשומות TTL שאינן `expired`, ניתן ליצור נקודת אמון ראשונית לאחר אימות סנכרון; אם קיימות רשומות כאלה, מעבירים אותן ל-`recovery_required` ודורשים בדיקה מפורשת לפני פעולה תלוית זמן.
 
 ### מצבי TTL
 | מצב | משמעות |
@@ -261,13 +270,13 @@ usbguard-approval-manager/
 | `active` | הכלל קיים, זוהה ואומת. |
 | `inconsistent` | חוסר התאמה בין מדיניות למטא-נתונים. |
 | `recovery_required` | אי אפשר להמשיך אוטומטית; נדרש מנהל. |
-| `expired` | תפוגת הרשומה טופלה, הכלל הזמני הוסר ואומת. הסטטוס אינו טוען שההתקן נחסם; הרשומה נשמרת לצורכי ביקורת ואינה מטופלת מחדש. |
+| `expired` | תפוגת הרשומה טופלה, הכלל הזמני הוסר ואומת. הסטטוס אינו טוען שההתקן נחסם; הרשומה נשמרת לצורכי ביקורת ואינה מטופלת מחדש. חסימה, אם נדרשת, מתבצעת בזרימת `usb-revoke.sh` נפרדת ואינה משנה את מצב ה-TTL. |
 
 מעברי מצב מותרים: `pending` אל `active`, `inconsistent` או `recovery_required`; `active` אל `expired`, `inconsistent` או `recovery_required`; `inconsistent` אל `recovery_required` או אל `active`/`expired` רק לאחר התאוששות מאומתת; `recovery_required` משתנה רק לאחר פעולה מפורשת ומתועדת של מנהל. `expired` הוא מצב סופי.
 
 ### מודל זמן ו-TTL
 - `expires_at` הוא מועד התפוגה הקלנדרי היחיד (Epoch). ה-TTL ממשיך לחלוף גם כשהמחשב כבוי.
-- **אמינות שעון:** שעון סביר לבדו אינו הוכחה לאמינות. פעולה התלויה בתפוגה או בשחזור דורשת ראיה חיובית ממקור סנכרון זמן שאושר ב-G-01, זמן נוכחי מעל `MIN_REASONABLE_EPOCH`, וללא קפיצה חריגה ביחס לנקודת הזמן האמינה האחרונה אם קיימת. מידע חסר, מקור לא נתמך או קפיצה מעבר לסף מעבירים את הרשומה ל-`recovery_required`; אין לשנות שעון מערכת.
+- **אמינות שעון:** שעון סביר לבדו אינו הוכחה לאמינות. פעולה התלויה בתפוגה או בשחזור דורשת ראיה חיובית ממקור סנכרון זמן שאושר ב-G-01, וזמן נוכחי מעל `MIN_REASONABLE_EPOCH`. באותו `boot_id`, משווים בין הפרש ה-Epoch מאז הדגימה האמינה הקודמת לבין הפרש `CLOCK_BOOTTIME`; סטייה מוחלטת מעל `MAX_CLOCK_JUMP_SECONDS` נחשבת קפיצה. לאחר אתחול מחדש אין להשוות את הפרש ה-Epoch לסף זה, משום שמשך הכיבוי אינו ידוע: נדרשים סנכרון חיובי בהווה וזמן שאינו מוקדם מ-`last_trusted_epoch`. חוסר בנתונים, מקור לא נתמך, Epoch מוקדם מנקודת הזמן האמינה או קפיצה באותו אתחול מעבירים את הרשומה ל-`recovery_required`; אין לשנות שעון מערכת.
 - `MIN_REASONABLE_EPOCH` ו-`MAX_CLOCK_JUMP_SECONDS` הם ספי זיהוי בלבד ואינם תחליף לאימות סנכרון. אין להוסיף גבול עליון קלנדרי שרירותי.
 
 ---
@@ -275,15 +284,20 @@ usbguard-approval-manager/
 ## 14. מנגנון TTL Reaper
 
 ### 14.1 מצבי עבודה
-1. `preflight`: בדיקת תצורה, IPC, ונעילה.
+1. `preflight`: בדיקת תצורה, IPC, נעילה, והיעדר journal שחזור לא פתור. אם קיים journal, אין לבצע policy או TTL; יש לדווח על התאוששות נדרשת.
 2. `validate-state`: אימות `ttl.json`.
-3. `reconcile`: איתור כללים חסרים. שחזור יתבצע רק אם `expires_at` עתידי והשעון אמין.
+3. `reconcile`: איתור כללים חסרים ורשומות `pending` שנותרו מהרצה קודמת. כלל חסר או `pending` ישן עוברים ל-`recovery_required` כאשר ניתן לעדכן את ה-State בבטחה. אין ליצור כלל חסר, להסיר כלל נוסף או לחזור על פעולת אישור אוטומטית; תיקון policy דורש פעולה מפורשת ומתועדת של מנהל.
 4. `expire`: הסרת כללים שפג תוקפם, בדיקת מדיניות אפקטיבית, ודיווח מדויק.
 5. `commit-state`: כתיבה אטומית של `ttl.json`.
 
 בעת תפוגה, ה-Reaper מסיר רק כלל זמני שתואם באופן יחיד ומאומת. הוא אינו מפעיל `block-device` כחלק מתהליך תפוגה. לאחר ההסרה הוא בודק ומדווח בנפרד את מצב ההתקן ואת המדיניות האפקטיבית, ומסמן `expired` רק לאחר שהסרת הכלל אומתה. אם מצב ההתקן נותר מאושר או אינו ניתן לקביעה, הדיווח חייב לציין זאת; אין להסיק שההתקן נחסם.
 
-**כשל והתאוששות:** כשל Preflight לפני ניסיון שינוי (למשל IPC לא זמין) אינו משנה policy או TTL; יש לדווח `EXIT_OPERATION` ולנסות שוב בהרצה מתוזמנת עתידית. שעון לא אמין או התאמה חסרה/עמומה מעבירים את הרשומה ל-`recovery_required` כאשר ניתן לכתוב זאת בבטחה, ואינם גורמים להסרה או לשחזור אוטומטיים. אם תוצאת הסרת הכלל אינה ודאית, אין לנסות שוב את ההסרה אוטומטית ויש לדווח `EXIT_INCONSISTENT`. אם ההסרה אומתה אך כתיבת `ttl.json` נכשלת, הקובץ האטומי הקודם נשמר, המערכת מדווחת `EXIT_INCONSISTENT`, שומרת ראיות ואינה מנסה להסיר שוב או לשחזר policy אוטומטית; שלב ה-reconcile של ה-Reaper בהרצה עתידית חייב לזהות שהכלל חסר ולהעביר את הרשומה להתאוששות מפורשת, ולא לסמן `expired` ללא ראיית הסרה מאומתת.
+### 14.2 ביטול הרשאה מפורש לאחר תפוגה
+`usb-revoke.sh --managed-id <uuid> --device <current-device-id>` הוא כלי נפרד, המופעל מפורשות על ידי מנהל; הוא אינו חלק מה-Reaper ואינו מופעל אוטומטית. מזהה ההתקן חייב להגיע משליפה עדכנית מ-USBGuard, ומזהה ה-TTL חייב להתייחס לרשומת `expired`. לפני פעולה, הכלי מציג את פרטי ההתקן והשלכות החסימה ומבקש אישור אינטראקטיבי.
+
+לאחר אישור, הכלי רוכש את הנעילה, מבצע Re-fetch, ומאמת מחדש את הרשומה, זהות ההתקן, מצבו ואת המדיניות האפקטיבית. ההתאמה בין רשומת ה-TTL להתקן חייבת להיות ייחודית לפי סמנטיקת התאמת הכללים שאומתה ב-G-01; VID:PID בלבד אינם מספיקים. אם ההתקן מנותק, כבר חסום, מזוהה באופן עמום, או מותר מכוח כלל עצמאי אחר, אין להפעיל `block-device`; יש לדווח את הסיבה. רק כאשר ההתקן מחובר ומותר, אין כלל עצמאי אחר שמתיר אותו, ההתאמה לרשומת ה-TTL יחידה, ו-G-01 מאשר את הפעולה ואת אימות תוצאתה, ניתן להפעיל `block-device` לאחר האישור. יש לאמת בנפרד שההתקן אכן חסום ולכתוב Audit עם תוצאת policy ותוצאת Audit נפרדות. אין לשנות או למחוק את רשומת ה-TTL `expired`. כשל או תוצאה לא ודאית מחייבים דיווח מפורש והתאוששות; אין ניסיון חוזר אוטומטי.
+
+**כשל והתאוששות:** כשל Preflight לפני ניסיון שינוי (למשל IPC לא זמין) אינו משנה policy או TTL; יש לדווח `EXIT_OPERATION` ולנסות שוב בהרצה מתוזמנת עתידית. שעון לא אמין או התאמה חסרה/עמומה מעבירים את הרשומה ל-`recovery_required` כאשר ניתן לכתוב זאת בבטחה, ואינם גורמים להסרה או לשחזור אוטומטיים. רשומת `pending` שנותרה לאחר קריסה אינה גורמת להרצה חוזרת של פעולת policy; לאחר נעילה ושליפת מצב עדכני, היא מועברת ל-`recovery_required` לבדיקה מפורשת. אם כלל זמני חסר עבור רשומת `active`, ה-Reaper מעביר אותה ל-`recovery_required` ואינו משחזר את הכלל אוטומטית, גם אם ה-TTL עתידי והשעון אמין. אם תוצאת הסרת הכלל אינה ודאית, אין לנסות שוב את ההסרה אוטומטית ויש לדווח `EXIT_INCONSISTENT`. אם ההסרה אומתה אך כתיבת `ttl.json` נכשלת, הקובץ האטומי הקודם נשמר, המערכת מדווחת `EXIT_INCONSISTENT`, שומרת ראיות ואינה מנסה להסיר שוב או לשחזר policy אוטומטית; שלב ה-reconcile של ה-Reaper בהרצה עתידית חייב לזהות שהכלל חסר ולהעביר את הרשומה להתאוששות מפורשת, ולא לסמן `expired` ללא ראיית הסרה מאומתת.
 
 ---
 
@@ -293,13 +307,14 @@ usbguard-approval-manager/
 |---|---|
 | `usb-approve.sh` | `--device`, `--type <permanent\|temporary>`, `--ttl`, `--dry-run` |
 | `cleanup-expired.sh` | `--reconcile`, `--expire-only` (ברירת מחדל: שניהם) |
+| `usb-revoke.sh` | `--managed-id`, `--device`, `--dry-run`, `--help` |
 | `usbguard-status.sh` | `--json`, `--watch` |
 | `backup-rules.sh` | `--help` |
-| `restore-rules.sh` | `--help` |
+| `restore-rules.sh` | `--recover`, `--help` |
 | `export-rules.sh` | `--help` |
 | `import-rules.sh` | `--help` |
 
-כל entry point תומך גם ב-`--help`. `--dry-run` אינו משנה policy, קובץ TTL, Audit או כל State אחר. `--device` מקבל מזהה התקן שמוחזר מהקריאה העדכנית ל-USBGuard; אין דגל `--vidpid` או אישור לפי VID:PID בלבד. ב-CLI ניתן להעביר `--device` מספר פעמים; מזהים כפולים נדחים לפני שינוי policy וכל התקן מעובד ומדווח בנפרד. פעולות Batch אינן מבצעות rollback גורף של פריטים שהצליחו אם פריט אחר נכשל.
+כל entry point תומך גם ב-`--help`. `--dry-run` אינו משנה policy, קובץ TTL, Audit או כל State אחר. `--device` מקבל מזהה התקן שמוחזר מהקריאה העדכנית ל-USBGuard; אין דגל `--vidpid` או אישור לפי VID:PID בלבד. ב-CLI ניתן להעביר `--device` מספר פעמים; מזהים כפולים נדחים לפני שינוי policy וכל התקן מעובד ומדווח בנפרד. פעולות Batch אינן מבצעות rollback גורף של פריטים שהצליחו אם פריט אחר נכשל. `usb-revoke.sh` דורש `--managed-id` של רשומת TTL במצב `expired`, `--device` עדכני ואישור אינטראקטיבי; אין לו מצב אישור לא-אינטראקטיבי.
 
 ---
 
@@ -307,7 +322,10 @@ usbguard-approval-manager/
 - `system` אינו חלק מהסכימה לייבוא.
 - TTL שפג תוקפו יוצג כ-`SKIPPED - expired`.
 - סכמת ייצוא בגרסה 1: אובייקט עם `schema_version: 1`, `permanent_rules` כמערך כללים קבועים מאושרים, ו-`ttl_records` כמערך רשומות פעילות עם `rule` קנוני ו-`expires_at`. אין לייצא `system`, `00-system.rules`, Rule IDs, מזהי משתמש או סודות. בייבוא בודקים את כל הסכמה והערכים ב-staging ומציגים diff לפני בקשת אישור לשינוי. רשומות שתוקפן חלף מדווחות `SKIPPED - expired`; למזהי TTL מיובאים נוצרים `managed_id` ו-`correlation_id` חדשים. קריאת קובץ אינה מפעילה פקודות ואינה משנה policy.
-- גיבוי כולל snapshot של התצורה, `ttl.json` וכללים קבועים שאושרו לייצוא בלבד; אין להעתיק או לשחזר `00-system.rules`. manifest בגרסה 1 כולל רשימת שמות קבצים סגורה, גודל בבתים, mode ו-SHA-256 לכל payload. דוחים נתיב מוחלט, `..`, symlink, קובץ לא צפוי, hash/size לא תואם או הרשאה לא תקינה. שחזור מתבצע ב-staging, מציג diff, מגבה את היעד, ומחליף קבצים באופן אטומי תחת נעילה. אם rollback אינו ודאי, המערכת מסמנת `recovery_required`; אין למחוק Audit או גיבויים קיימים.
+- גיבוי כולל snapshot של התצורה, `ttl.json` וכללים קבועים שאושרו לייצוא בלבד; אין להעתיק או לשחזר `00-system.rules`. manifest בגרסה 1 כולל רשימת שמות קבצים סגורה, גודל בבתים, mode ו-SHA-256 לכל payload. דוחים נתיב מוחלט, `..`, symlink, קובץ לא צפוי, hash/size לא תואם או הרשאה לא תקינה.
+- שחזור רב-קבצים מתבצע ב-staging תחת נעילה, מציג diff, מאמת מראש את רשומות ה-TTL מול השעון וה-policy הפעילה, יוצר עותקי rollback מאומתים ו-journal עמיד לפני החלפה ראשונה, ומחליף כל קובץ אטומית. ה-journal ב-`restore_journal.json` כולל `schema_version`, מזהה עסקה, מצב, רשימת יעדים מוגבלת ל-allowlist, hash קודם/מיועד והתקדמות; כתיבתו והחלפות הקבצים כוללות `fsync` לקבצים ולספריות האב. כל entry point שמשנה policy או State חייב לעצור אם קיים journal לא פתור. לאחר קריסה, ההתאוששות מחזירה את כל הקבצים לגרסה הקודמת מתוך עותקי rollback מאומתים, באופן אידמפוטנטי; מסירים את ה-journal רק לאחר אימות כל הקבצים. אם הראיות חסרות/לא תואמות, עוברים ל-`recovery_required`, לא ממשיכים לשנות policy ומשמרים ראיות. נדרש לוודא לפי G-01 וסביבת הפריסה ש-USBGuard אינו צורך מדיניות מתמידה מעורבת במהלך השחזור; אם אי אפשר להבטיח זאת, השחזור חסום.
+- שחזור TTL אינו מחיל כלל זמני ואינו חוסם/מאשר התקן. רשומת `active` נשארת `active` רק לאחר שחזור מלא, כאשר השעון מהימן, `expires_at` עתידי, ונמצא כלל זמני תואם יחיד במדיניות הפעילה; בכל מקרה אחר שאינו `expired` היא עוברת ל-`recovery_required`. `pending` ו-`inconsistent` תמיד דורשות התאוששות מפורשת. רשומות `expired` נשארות סופיות. שחזור אינו מפעיל את `usb-revoke.sh`. אין למחוק Audit או גיבויים קיימים.
+- אם קיים `restore_journal.json`, כל entry point עוצר לפני שינוי policy או State. רק `restore-rules.sh --recover` רשאי לפעול: הוא משחזר idempotently את כל היעדים מעותקי rollback מאומתים, בודק hash קודם לכל קובץ ומסיר את ה-journal לאחר הצלחה מלאה. אם האימות נכשל, משמרים journal וראיות ומחייבים התאוששות מנהל מפורשת. יש למנוע מ-USBGuard לטעון קבוצה מעורבת של קובצי policy; אם מנגנון הפריסה אינו יכול להבטיח זאת, אין לאפשר את השחזור.
 
 ---
 
@@ -338,7 +356,8 @@ usbguard-approval-manager/
 - `User=root`, `Group=root`; נדרשת הרשאת root לשינוי policy ולכתיבה לנתיבים המוגנים. יש לצמצם capabilities ולחזק את היחידה ככל האפשר בלי לשבור IPC.
 - `ExecStart=/usr/libexec/usbguard-approval-manager/cleanup-expired.sh` (מריץ reconcile ו-expire).
 - `OnBootSec=1min`, `OnUnitActiveSec=5min`.
-- **`ReadWritePaths`:** חובה לכלול את `/var/lib/usbguard-approval-manager/`, `/var/backups/usbguard-approval-manager/`, `/var/log/usbguard-approval-manager/`, ואת נתיב הנעילה `/run/lock/usbguard-approval-manager.lock`.
+- **`ReadWritePaths`:** שירות ה-Reaper יקבל כתיבה רק ל-`/var/lib/usbguard-approval-manager/`, `/var/log/usbguard-approval-manager/`, ונתיב הנעילה `/run/lock/usbguard-approval-manager.lock`. פעולות גיבוי ושחזור אינן רצות ביחידת ה-Reaper; יש להעניק להן גישה ל-`/var/backups/usbguard-approval-manager/` רק בזמן הפעולה המאושרת.
+- `usb-revoke.sh` הוא entry point נפרד ומאושר ב-sudoers, עם אישור אינטראקטיבי בלבד; אין להוסיף אותו ל-Timer או לשירות רקע.
 
 ---
 
@@ -377,15 +396,15 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 | UT-06 | TTL schema, מצבי הרשומה, UUID, hash ונתונים פגומים. |
 | UT-07 | תוצאות Adapter מול פלט מדומה, כולל IPC, timeout ו-Rule ID נוכחי. |
 | UT-08 | Audit JSONL, escaping של newline/control characters, הרשאות וכשל כתיבה. |
-| UT-09 | זמן לא סביר, סנכרון חסר, קפיצה, גבולות TTL; ללא שינוי שעון מערכת. |
+| UT-09 | זמן לא סביר, סנכרון חסר, קפיצה באותו אתחול, ואתחול מחדש לאחר כיבוי ממושך; ללא שינוי שעון מערכת. |
 | UT-10 | Reconciliation: עקבי, יתום, כפול, חופף, עמום ונתונים חסרים. |
 | UT-11 | זרימות אישור זמני/קבוע ופיצוי מול Adapter מדומה. |
-| UT-12 | Reaper/Recovery מול Adapter ושעון מדומים; אין שינוי policy במצב לא ודאי. |
-| UT-13 | CLI/TUI, JSON schema, ביטול, batch ותוצאות/קודי יציאה. |
-| UT-14 | Backup/restore/import/export: manifest, hash, validation ו-path traversal. |
+| UT-12 | Reaper/Recovery מול Adapter ושעון מדומים; אין שינוי policy במצב לא ודאי, ו-Reaper לעולם אינו מפעיל `block-device`. |
+| UT-13 | CLI/TUI, JSON schema, ביטול, batch, זרימת `usb-revoke.sh` ותוצאות/קודי יציאה. |
+| UT-14 | Backup/restore/import/export: manifest, hash, validation, path traversal, journal ו-recovery idempotent. |
 | UT-15 | יחידות systemd, נתיבי כתיבה, הרשאות ו-`validate_all.sh`. |
 
-### 22.2 בדיקות אינטגרציה (T-01 עד T-26)
+### 22.2 בדיקות אינטגרציה (T-01 עד T-28)
 
 | מזהה | תרחיש וקריטריון PASS |
 |---|---|
@@ -396,15 +415,15 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 | T-05 | כלל קבוע נשמר ב-RuleFile/RuleFolder הפעיל, ללא שינוי `00-system.rules`. |
 | T-06 | התמדה של כלל קבוע וגורל כלל זמני אחרי restart של daemon מתועדים. |
 | T-07 | שעון מסונכרן ומאומת: תפוגת TTL מחושבת לפי Epoch ללא שינוי מדיניות מוקדם. |
-| T-08 | שעון לא מסונכרן/נתון חסר/קפיצה לאחר reboot: אין תפוגה או שחזור אוטומטיים; נדרש recovery. |
+| T-08 | שעון לא מסונכרן/נתון חסר/קפיצה לאחר reboot: אין תפוגה אוטומטית; זמן כיבוי ארוך מהסף אינו קפיצה אם הסנכרון אומת. רשומות קיימות ללא ראיית שעון עוברות ל-recovery. |
 | T-09 | Import שמנסה לשנות כללי מערכת נדחה לפני החלת שינוי. |
 | T-10 | חפיפה עם כלל קבוע: אין ליצור רשומת TTL או כלל זמני. |
-| T-11 | Reconciliation מזהה רשומות וכללים יתומים, כפילות וחוסר ודאות בלי לתקן policy אוטומטית. |
+| T-11 | Reconciliation מזהה רשומות וכללים יתומים, רשומת `pending` ישנה, כפילות וחוסר ודאות; כלל חסר מסומן `recovery_required` ללא שחזור policy אוטומטי. |
 | T-12 | תפוגת TTL: הסרת כלל זמני מאומתת; מצב ההתקן וכלל מתיר אחר מדווחים בנפרד. |
 | T-13 | גבולות TTL, תפוגה בזמן שהמערכת כבויה, וסטטוס time-sync מתנהגים לפי המפרט. |
 | T-14 | Import עם נתיב traversal או נתיב מערכת מוגן נדחה; לא נכתב מחוץ ל-staging. |
 | T-15 | קובץ TTL חסר/פגום/גרסה לא נתמכת אינו גורם לשינוי policy ומועבר לטיפול מוגדר. |
-| T-16 | Restore נבדק ב-staging, כולל manifest/hash, נתונים קיימים וכשל/rollback. |
+| T-16 | Restore נבדק ב-staging, כולל manifest/hash, נתונים קיימים, journal עמיד, קריסה בכל נקודת החלפה, rollback מאומת וחסימת פעולות עד התאוששות; USBGuard אינו צורך מדיניות מעורבת. |
 | T-17 | Backup מכיל רק קבצים מאושרים, hash תקין ורוטציה לפי `BACKUP_KEEP`. |
 | T-18 | נעילה מתחרה: פעולה שנייה ממתינה עד timeout או נכשלת בבטחה; אין שינוי מקביל. |
 | T-19 | Batch חלקי מדווח תוצאה לכל התקן ומחזיר `EXIT_PARTIAL` לפי כללי הקדימות. |
@@ -414,9 +433,11 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 | T-23 | `usbguard-status.sh --json` תואם ל-`schema_version` יציב ומציג תוצאות policy/Audit בנפרד. |
 | T-24 | התקן נעלם בזמן בחירת TUI; אחרי נעילה, Re-fetch מונע commit ומדווח למשתמש. |
 | T-25 | IPC לא זמין/timeout/daemon restart בזמן פעולה: אין הצלחה מדומה; מצב לא ודאי דורש recovery. |
-| T-26 | כשל פיצוי או `ttl.json` חסר/כשל עדכון אחרי שינוי policy משאיר ראיות ומצב `inconsistent`/`recovery_required`. |
+| T-26 | כשל פיצוי, קריסה עם רשומת `pending`, או `ttl.json` חסר/כשל עדכון אחרי שינוי policy משאיר ראיות ומצב `inconsistent`/`recovery_required`; אין לחזור אוטומטית על שינוי policy. |
+| T-27 | Reaper אינו חוסם התקן. ביטול הרשאה מפורש דורש רשומת `expired`, מזהה התקן עדכני, אישור מנהל, נעילה, Re-fetch, התאמה יחידה ו-G-01; התקן מנותק/עמום/מותר מכוח כלל עצמאי אינו נחסם. הצלחת `block-device` מאומתת ונרשמת בנפרד מ-Audit. |
+| T-28 | שחזור TTL אינו מחיל policy; רשומה פעילה נשארת פעילה רק לאחר בדיקת שעון וכלל תואם יחיד. `pending`/`inconsistent` דורשות התאוששות, `expired` נשארת סופית, ושום שחזור אינו מפעיל ביטול הרשאה. |
 
-כל T-01 עד T-26 מחייבים תנאי התחלה, גרסת יעד, פקודות/פעולות, פלט וקוד יציאה, ראיות, ותוצאת PASS/FAIL/UNVERIFIED. בדיקות שמשנות policy רצות רק ב-VM מבודד עם USB passthrough ונתיב התאוששות מאומת. אין להריץ אותן על תחנת הפיתוח או על חומרה יצרנית.
+כל T-01 עד T-28 מחייבים תנאי התחלה, גרסת יעד, פקודות/פעולות, פלט וקוד יציאה, ראיות, ותוצאת PASS/FAIL/UNVERIFIED. בדיקות שמשנות policy רצות רק ב-VM מבודד עם USB passthrough ונתיב התאוששות מאומת. אין להריץ אותן על תחנת הפיתוח או על חומרה יצרנית.
 
 ---
 
@@ -431,7 +452,7 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 ## 24. שערי אימות טכניים (G-01) - שער חובה
 
 לפני חיבור `usbguard-policy.sh` לייצור, יש להריץ ולתעד:
-1. **הבדל בין אישור התקן להוספת כלל:** בדוק ותעד בנפרד את מצב ההתקן המחובר ואת המדיניות עבור חיבורים עתידיים. אין להניח שפקודה מסוימת נדרשת תמיד; תעד את הפקודה/שילוב שאומת בגרסת היעד.
+1. **הבדל בין אישור התקן להוספת כלל וביטולו:** בדוק ותעד בנפרד מצב התקן מחובר ומדיניות לחיבורים עתידיים. במעבדה בלבד, אמת גם `block-device` ותוצאתו עבור התקן יעד; אין להניח שפעולה מסוימת נדרשת תמיד.
 2. **קריטריונים לאמינות שעון:** תעד את מקור הסנכרון, פקודת הבדיקה, ערכי השדות הצפויים, התנהגות כשהמידע חסר, והסף המאושר לקפיצת שעון. אין לקודד הנחת כלי/פלט שלא נבדקה בסביבה.
 3. **בדיקות Reboot:** בצע בנפרד reboot עם שעון מסונכרן ומאומת ו-reboot עם סנכרון חסר/קפיצה. הוכח שבמצב הלא אמין אין תפוגה או שחזור אוטומטיים.
 4. **קדימות כללים:** בדיקת כלל `block` קודם מול `allow` חדש; תעד את התוצאה והמדיניות, אין להניח קדימות.
@@ -445,7 +466,7 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 1. `config-reader.sh`, `logger.sh`, `atomic-write.py`.
 2. `usbguard-policy.sh` והשלמת שער G-01.
 3. `stages.sh`, `usb-approve.sh` (עם הפרדת `allow-device` ו-`append-rule`).
-4. `cleanup-expired.sh` (Reaper).
+4. `cleanup-expired.sh` (Reaper) וזרימת ביטול הרשאה מפורשת, לאחר אימות `block-device` ב-G-01.
 5. systemd, `deploy.sh`, `validate_all.sh`.
 
 ---
@@ -469,4 +490,5 @@ Bash 5.0+, USBGuard (מאומת ב-G-01), systemd, whiptail, flock, jq 1.6+, Pyt
 
 **v4.4 (25.10.2026):** גרסת הבסיס שאושרה בעבר; כללה את הפרדת פעולות USBGuard, קוד `EXIT_AUDIT`, קריטריוני שעון ונתיב נעילה ב-systemd.
 
-**v4.5 Review Draft (26.10.2026):** מבהירה את חוזה TTL והמצב `expired`, אמינות שעון ו-G-01, סכמת Audit ו-JSON, allowlist התצורה, הרשאות קבצים ושירות, קודי יציאה לכשל תפעולי, קטלוג UT/T מלא, ומדיניות גיבוי/שחזור וייבוא/ייצוא. הטיוטה אינה מחליפה את v4.4 עד לאישור מפורש. לאחר האישור יש להשלים G-01 לפני מימוש הרכיבים התלויים בתוצאותיו.
+**v4.5 Review Draft (26.10.2026):** מבהירה את חוזה TTL והמצב `expired`, אמינות שעון ו-G-01, סכמת Audit ו-JSON, allowlist התצורה, הרשאות קבצים ושירות, קודי יציאה לכשל תפעולי, קטלוג UT/T מלא, journal עמיד לשחזור רב-קבצים, מדיניות שחזור TTL וזרימת ביטול הרשאה מפורשת ונפרדת.
+**v4.5 Approved (28.10.2026):** אושרה כבסיס האפיון והמימוש. v4.4 נשמרת כגרסה קודמת; G-01 וראיות הבטיחות לשחזור נשארים שערי חובה לפני שימוש בפעולות התלויות בהם.

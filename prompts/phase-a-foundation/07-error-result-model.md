@@ -36,7 +36,15 @@ Implement the shared error/result model in scripts/lib/result.sh:
    - EXIT_AUDIT = 14
    - EXIT_CANCELLED = 130
 
-3. Define return structure for CLI and library functions.
+3. Define return structure for CLI and library functions:
+   - Action JSON must expose `policy_result` and `audit_result` as separate objects,
+     each with a valid `status` and nullable `detail_code`, per SRS v4.5.
+   - Use only the SRS status values; do not emit `partial` as a policy or audit
+     status. A partial batch's aggregate policy status defaults to `unknown`,
+     and its audit status defaults to `not_applicable` unless the caller can
+     provide a more accurate allowed status.
+   - Provide a per-item result API so batch output retains each item's ID,
+     state, exit code, detail, and separate policy/audit result objects.
 
 Do not implement business logic. Add focused unit tests for each result/code mapping.
 ```
@@ -52,6 +60,10 @@ Do not implement business logic. Add focused unit tests for each result/code map
 - מצב המחייב התאוששות.
 
 השתמש בדיוק במיפוי קודי היציאה בסעיף 21 של USB.md. בכשל batch, שמור תוצאה לכל פריט והחל את סדר הקדימות שהוגדר שם. כשל תפעולי לפני שינוי policy הוא `EXIT_OPERATION`; מצב לא עקבי או לא ידוע הוא `EXIT_INCONSISTENT`.
+פלט JSON של פעולה חייב להכיל `policy_result` ו-`audit_result` כאובייקטים עם
+`status` ו-`detail_code` (מחרוזת או `null`). השתמש רק בערכי הסטטוס המותרים
+ב-SRS v4.5. עבור Batch, ספק API ששומר תוצאה מובנית לכל פריט; אין להשתמש
+ב-`partial` כערך סטטוס של policy או audit.
 
 ## איסורים
 - אל תשתמש בתוצאה כללית כגון `false` כאשר יש צורך להבחין בין מצבים בעלי משמעות אבטחתית שונה.

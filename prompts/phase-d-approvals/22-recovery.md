@@ -22,12 +22,16 @@ Implement scripts/lib/recovery.sh:
 Handle these inconsistent states:
 1. Policy changed but TTL not updated.
 2. TTL updated but policy not changed.
-3. TTL file corrupt or schema version unsupported.
-4. Clock unreliable.
-5. USBGuard unavailable.
-6. Ambiguous rule match.
-7. Audit failed after successful policy change.
-8. Expired TTL rule removed but connected device remains allowed.
+3. An active TTL record has no matching temporary policy rule, or a pending
+   record remains after an interrupted operation.
+4. TTL file corrupt or schema version unsupported.
+5. Clock unreliable.
+6. USBGuard unavailable.
+7. Ambiguous rule match.
+8. Audit failed after successful policy change.
+9. Expired TTL rule removed but connected device remains allowed.
+10. An unresolved multi-file restore journal exists.
+11. Explicit post-expiry revocation failed or its outcome is uncertain.
 
 For each state:
 - Define detection criteria.
@@ -37,9 +41,18 @@ For each state:
 
 Constraints:
 - Do NOT modify policy when state is ambiguous.
+- Do NOT automatically recreate a missing temporary rule or replay a pending
+  policy action; such cases require an explicit, audited administrator choice.
 - Do NOT delete records to "fix" inconsistency.
 - Maintain idempotency: running recovery twice should not cause
   additional changes.
+- If restore_journal.json exists, block every policy/state mutation until the
+  transaction is rolled back from verified rollback copies and every target
+  hash is checked. If evidence is incomplete, preserve it and require an
+  explicit administrator recovery; never continue with a mixed file set.
+- A device remaining allowed after TTL expiry is handled only by the separate
+  interactive revocation workflow. Recovery and the Reaper must not call
+  block-device or retry an uncertain revocation.
 
 Create tests for each state. Run and report results.
 ```
@@ -57,6 +70,8 @@ Create tests for each state. Run and report results.
 - התאמה לכלל אינה חד-משמעית.
 - Audit נכשל לאחר שינוי מוצלח.
 - התקן עדיין מאושר אחרי הסרת כלל זמני.
+- journal שחזור לא פתור או קובץ יעד שתוכנו אינו תואם ל-journal.
+- ביטול הרשאה מפורש שנכשל או שתוצאתו אינה ודאית.
 - שמור רשומת `expired` רק לאחר הסרה מאומתת; היא אינה מעידה שההתקן נחסם.
 
 ## דרישות

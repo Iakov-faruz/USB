@@ -27,13 +27,13 @@ Create the minimal project skeleton:
    - Reference to USB.md and its exact version/status
    - Note that this is a development skeleton
 
-3. Create conf/approval-manager.conf.example with these keys:
+3. Create conf/approval-manager.conf.example with all approved v4.5 keys:
    TEMP_TTL_SECONDS=3600
-   IPC_TIMEOUT_SECONDS=5
    MIN_REASONABLE_EPOCH=1577836800
    MAX_CLOCK_JUMP_SECONDS=3600
-   LOG_LEVEL=INFO
    BACKUP_KEEP=5
+   IPC_TIMEOUT_SECONDS=5
+   LOG_LEVEL=INFO
 
 4. Create .gitignore for bash/python project.
 
