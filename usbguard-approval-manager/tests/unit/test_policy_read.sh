@@ -161,36 +161,82 @@ touch "$POLICY_FILE"
 DAEMON_CONFIG="$TEST_DIR/usbguard-daemon.conf"
 USBAM_DAEMON_CONFIG_PATH="$DAEMON_CONFIG"
 printf 'RuleFile = %s\n' "$POLICY_FILE" > "$DAEMON_CONFIG"
-policy_path="$(get_persistent_policy_path)" ||
+get_persistent_policy_paths ||
   fail "configured RuleFile was not detected"
-assert_equal "$policy_path" "$POLICY_FILE" "RuleFile path"
+assert_equal "${USBAM_PERSISTENT_POLICY_PATHS[RuleFile]:-}" "$POLICY_FILE" \
+  "RuleFile path"
+assert_equal "${#USBAM_PERSISTENT_POLICY_PATHS[@]}" "1" \
+  "RuleFile source count"
 printf 'RuleFolder = %s\n' "$POLICY_FOLDER" > "$DAEMON_CONFIG"
-policy_path="$(get_persistent_policy_path)" ||
+get_persistent_policy_paths ||
   fail "configured RuleFolder was not detected"
-assert_equal "$policy_path" "$POLICY_FOLDER" "RuleFolder path"
-pass "persistent policy source is read from the daemon configuration"
-
+assert_equal "${USBAM_PERSISTENT_POLICY_PATHS[RuleFolder]:-}" "$POLICY_FOLDER" \
+  "RuleFolder path"
+assert_equal "${#USBAM_PERSISTENT_POLICY_PATHS[@]}" "1" \
+  "RuleFolder source count"
 printf 'RuleFile=%s\nRuleFolder=%s\n' "$POLICY_FILE" "$POLICY_FOLDER" \
   > "$DAEMON_CONFIG"
-if get_persistent_policy_path >/dev/null 2>&1; then
-  fail "ambiguous RuleFile and RuleFolder configuration was accepted"
+get_persistent_policy_paths ||
+  fail "simultaneous RuleFile and RuleFolder were not detected"
+assert_equal "${USBAM_PERSISTENT_POLICY_PATHS[RuleFile]:-}" "$POLICY_FILE" \
+  "combined RuleFile path"
+assert_equal "${USBAM_PERSISTENT_POLICY_PATHS[RuleFolder]:-}" "$POLICY_FOLDER" \
+  "combined RuleFolder path"
+assert_equal "${#USBAM_PERSISTENT_POLICY_PATHS[@]}" "2" \
+  "combined policy source count"
+pass "configured RuleFile and RuleFolder sources are both returned"
+
+printf '# no persistent source configured\n' > "$DAEMON_CONFIG"
+if get_persistent_policy_paths >/dev/null 2>&1; then
+  fail "configuration without a policy source was accepted"
 fi
-assert_equal "$USBAM_POLICY_ERROR_CODE" "ambiguous_policy_source" \
-  "ambiguous persistent source error"
+assert_equal "$USBAM_POLICY_ERROR_CODE" "policy_source_unconfigured" \
+  "missing persistent source error"
+assert_equal "${#USBAM_PERSISTENT_POLICY_PATHS[@]}" "0" \
+  "sources cleared when none is configured"
+printf 'RuleFile=%s\n' "$TEST_DIR/missing-rules.conf" > "$DAEMON_CONFIG"
+if get_persistent_policy_paths >/dev/null 2>&1; then
+  fail "missing RuleFile was accepted"
+fi
+assert_equal "$USBAM_POLICY_ERROR_CODE" "policy_source_unavailable" \
+  "missing RuleFile error"
 printf 'RuleFile=/etc/usbguard/../outside.rules\n' > "$DAEMON_CONFIG"
-if get_persistent_policy_path >/dev/null 2>&1; then
+if get_persistent_policy_paths >/dev/null 2>&1; then
   fail "parent traversal in RuleFile was accepted"
 fi
 assert_equal "$USBAM_POLICY_ERROR_CODE" "invalid_policy_path" \
   "policy path traversal error"
 printf 'RuleFile=%s\nRuleFile=%s\n' "$POLICY_FILE" "$POLICY_FILE" \
   > "$DAEMON_CONFIG"
-if get_persistent_policy_path >/dev/null 2>&1; then
+if get_persistent_policy_paths >/dev/null 2>&1; then
   fail "duplicate RuleFile setting was accepted"
 fi
 assert_equal "$USBAM_POLICY_ERROR_CODE" "ambiguous_policy_source" \
   "duplicate RuleFile error"
-pass "ambiguous, duplicate, and traversing policy paths are rejected"
+printf 'RuleFolder=%s\nRuleFolder=%s\n' "$POLICY_FOLDER" "$POLICY_FOLDER" \
+  > "$DAEMON_CONFIG"
+if get_persistent_policy_paths >/dev/null 2>&1; then
+  fail "duplicate RuleFolder setting was accepted"
+fi
+assert_equal "$USBAM_POLICY_ERROR_CODE" "ambiguous_policy_source" \
+  "duplicate RuleFolder error"
+printf 'RuleFile=%s\nRuleFolder=%s\n' "$POLICY_FILE" "$TEST_DIR/missing-rules.d" \
+  > "$DAEMON_CONFIG"
+if get_persistent_policy_paths >/dev/null 2>&1; then
+  fail "missing RuleFolder was accepted"
+fi
+assert_equal "$USBAM_POLICY_ERROR_CODE" "policy_source_unavailable" \
+  "missing RuleFolder error"
+assert_equal "${#USBAM_PERSISTENT_POLICY_PATHS[@]}" "0" \
+  "partial sources cleared after validation failure"
+ln -s "$POLICY_FILE" "$TEST_DIR/rules-link.conf"
+printf 'RuleFile=%s\n' "$TEST_DIR/rules-link.conf" > "$DAEMON_CONFIG"
+if get_persistent_policy_paths >/dev/null 2>&1; then
+  fail "symlinked RuleFile was accepted"
+fi
+assert_equal "$USBAM_POLICY_ERROR_CODE" "policy_source_unavailable" \
+  "symlinked RuleFile error"
+pass "missing, duplicate, traversing, and symlinked policy sources fail closed"
 
 check_daemon_status ||
   fail "running daemon with reachable IPC was not healthy"

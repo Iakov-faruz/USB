@@ -9,6 +9,8 @@ if [[ -z "${USBAM_USB_POLICY_LOADED+x}" ]]; then
   declare -g USBAM_DAEMON_CONFIG_PATH="/etc/usbguard/usbguard-daemon.conf"
   declare -ga USBAM_BLOCKED_DEVICES=()
   declare -ga USBAM_ACTIVE_RULES=()
+  # Maps each configured RuleFile/RuleFolder key to its validated path.
+  declare -gA USBAM_PERSISTENT_POLICY_PATHS=()
   declare -g USBAM_DAEMON_STATUS="unknown"
   declare -g USBAM_IPC_STATUS="unknown"
   declare -gr USBAM_USB_POLICY_LOADED=1
@@ -169,14 +171,16 @@ get_active_rules() {
   list_active_rules "$@"
 }
 
-get_persistent_policy_path() {
-  local raw_line line key value path line_number
+# Populates the source map only after every configured path is validated.
+get_persistent_policy_paths() {
+  local raw_line line key value line_number
   local rule_file=""
   local rule_folder=""
 
+  USBAM_PERSISTENT_POLICY_PATHS=()
   USBAM_POLICY_ERROR_CODE=""
   if (( $# != 0 )); then
-    usbguard_policy_error "get_persistent_policy_path accepts no arguments"
+    usbguard_policy_error "get_persistent_policy_paths accepts no arguments"
     USBAM_POLICY_ERROR_CODE="invalid_arguments"
     return 1
   fi
@@ -230,10 +234,9 @@ get_persistent_policy_path() {
     fi
   done < "$USBAM_DAEMON_CONFIG_PATH"
 
-  if [[ -n "$rule_file" && -n "$rule_folder" ]] ||
-    [[ -z "$rule_file" && -z "$rule_folder" ]]; then
-    usbguard_policy_error "daemon configuration does not identify one persistent policy source"
-    USBAM_POLICY_ERROR_CODE="ambiguous_policy_source"
+  if [[ -z "$rule_file" && -z "$rule_folder" ]]; then
+    usbguard_policy_error "daemon configuration does not identify a persistent policy source"
+    USBAM_POLICY_ERROR_CODE="policy_source_unconfigured"
     return 1
   fi
 
@@ -243,15 +246,20 @@ get_persistent_policy_path() {
       USBAM_POLICY_ERROR_CODE="policy_source_unavailable"
       return 1
     fi
-    printf '%s\n' "$rule_file"
-    return 0
+    USBAM_PERSISTENT_POLICY_PATHS[RuleFile]="$rule_file"
   fi
-  if [[ -L "$rule_folder" || ! -d "$rule_folder" || ! -r "$rule_folder" ]]; then
+  if [[ -n "$rule_folder" ]] &&
+    [[ -L "$rule_folder" || ! -d "$rule_folder" ||
+      ! -r "$rule_folder" || ! -x "$rule_folder" ]]; then
     usbguard_policy_error "configured RuleFolder is missing, unsafe, or unreadable"
     USBAM_POLICY_ERROR_CODE="policy_source_unavailable"
+    USBAM_PERSISTENT_POLICY_PATHS=()
     return 1
   fi
-  printf '%s\n' "$rule_folder"
+  if [[ -n "$rule_folder" ]]; then
+    USBAM_PERSISTENT_POLICY_PATHS[RuleFolder]="$rule_folder"
+  fi
+  return 0
 }
 
 check_daemon_status() {
