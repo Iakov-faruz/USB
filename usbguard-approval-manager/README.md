@@ -17,8 +17,13 @@ remain at the repository root.
 ## Project status
 
 The foundation includes a strict configuration reader, shared result model,
-atomic JSON writer, and focused unit tests. The USBGuard adapter and
-policy-changing operations have not been implemented.
+atomic JSON writer, process lock, separate operational/Audit logging, and
+calendar clock guards with focused unit tests. A read-only USBGuard adapter is
+available for mocked CLI queries and daemon policy-source discovery, including
+configurations with both `RuleFile` and `RuleFolder`; policy-changing
+operations have not been implemented. The clock-sync provider remains disabled
+by default until G-01 verifies a target-specific source, so time-dependent
+operations fail closed.
 
 ## Development rules
 
@@ -30,10 +35,30 @@ policy-changing operations have not been implemented.
 
 ## Local checks
 
-From this directory, run the unit tests with:
+From this directory in Linux/WSL, run the unit tests with:
 
 ```sh
 bash tests/unit/test_config_reader.sh
 bash tests/unit/test_result.sh
+bash tests/unit/test_lock.sh
+bash tests/unit/test_logger.sh
+bash tests/unit/test_time_guards.sh
+bash tests/unit/test_policy_read.sh
 python3 -m unittest discover -s tests/unit -p 'test_*.py'
 ```
+
+Audit writes require the protected `/var/log/usbguard-approval-manager`
+directory owned by `root:usbadmins` with mode `0750`; the Audit file is
+`root:usbadmins` mode `0640`. The logger reports write failures to its caller,
+which must preserve any already-applied policy result.
+
+`time-guards.sh` does not set or adjust the system clock. Its unit tests use
+simulated provider evidence and clock samples; they do not prove that a real
+time-sync source is trustworthy. Implement and enable that provider only after
+the G-01 evidence is documented for the target system.
+
+Before any real G-01 tests, complete [docs/lab-checklist.md](docs/lab-checklist.md).
+The checklist is planning guidance, not evidence that the VM is currently ready.
+The latest non-invasive VM preflight is recorded in
+[docs/g01-preflight-report.md](docs/g01-preflight-report.md); G-01 remains
+`UNVERIFIED`.
